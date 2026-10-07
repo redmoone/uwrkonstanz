@@ -1,0 +1,15 @@
+node_modules
+.next
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+*.log
+.DS_Store
+.idea
+# SQLite database + WAL files
+data/*.db
+data/*.db-*
+# Runtime uploads; keep .gitkeep only
+media/*
+!media/.gitkeep
