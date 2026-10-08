@@ -27,12 +27,11 @@ export function HotspotDialog({ hotspot, onClose }: Props) {
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
     const body = document.body
     const root = document.documentElement
-    const previousOverflow = body.style.overflow
     const previousRootOverflow = root.style.overflow
     const previousPadding = body.style.paddingRight
     const scrollbarWidth = window.innerWidth - root.clientWidth
 
-    body.style.overflow = 'hidden'
+    // Lock the root viewport without creating a new sticky ancestor on body.
     root.style.overflow = 'hidden'
     if (scrollbarWidth > 0) {
       body.style.paddingRight = `${parseFloat(window.getComputedStyle(body).paddingRight) + scrollbarWidth}px`
@@ -42,7 +41,6 @@ export function HotspotDialog({ hotspot, onClose }: Props) {
 
     return () => {
       if (dialog.open) dialog.close()
-      body.style.overflow = previousOverflow
       root.style.overflow = previousRootOverflow
       body.style.paddingRight = previousPadding
       if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true })
