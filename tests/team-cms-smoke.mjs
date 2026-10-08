@@ -17,8 +17,9 @@ for (const [name, role, email] of [['Gesa', 'Trainerin', 'gesa@uwr-kn.de'], ['Ni
 const page = await fetch(new URL('/team', base))
 assert.equal(page.status, 200)
 const html = await page.text()
-for (const text of ['Gesa', 'Nico', 'gesa@uwr-kn.de', 'nico@uwr-kn.de', 'Deine Nachricht', 'E-MAIL ÖFFNEN']) {
+for (const text of ['Gesa', 'Nico', 'gesa@uwr-kn.de', 'nico@uwr-kn.de', 'Deine Nachricht', 'Deine E-Mail-Adresse', 'Handynummer', 'NACHRICHT VERSENDEN']) {
   assert.ok(html.includes(text), `Team page contains ${text}`)
 }
+assert.ok(!html.includes('An wen möchtest du schreiben?'), 'Form has no trainer selection')
 assert.ok(html.includes('href="/team"'), 'Main navigation links to the team page')
 console.log('Team CMS smoke passed: seeded trainer profiles, email addresses, team page and message form')

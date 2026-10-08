@@ -21,6 +21,8 @@ Server paths:
 
 Inspect: `systemctl status uwrkonstanz` and `journalctl -u uwrkonstanz -n 100`.
 
+For contact-form email delivery, set `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM_ADDRESS` and, where needed, `SMTP_USER` / `SMTP_PASSWORD` in `shared/app.env`, then restart the service. Port 465 uses implicit TLS; port 587 requires STARTTLS. `SMTP_SECURE` can override implicit TLS. Set the shared recipient in CMS **Website-Einstellungen → Kontakt-E-Mail / Verteiler**, or use `CONTACT_TO_EMAIL` in the environment. Without a configured recipient, active trainer email addresses receive the message together. Keep SMTP credentials out of Git. The form only confirms success after SMTP accepts delivery; check the mailbox and provider logs when activating the production configuration.
+
 Payload runs committed production migrations on initialization. After changing collections or fields, run `pnpm migrate:create meaningful-name`, review and commit the generated migration files. Never run development schema push against production. A failed health check restores the previous application release; schema changes require separate recovery from the saved SQLite backup.
 
 The first deployment starts with a new production database and listens on loopback until its owner registers the initial administrator. Use `ssh -L 3301:127.0.0.1:3000 root@78.141.212.242`, open `http://localhost:3301/admin`, and create the administrator yourself. Deploy again to publish on port 3000. Local development data and logins are not automatically published.

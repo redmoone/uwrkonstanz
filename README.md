@@ -50,7 +50,9 @@ Wichtig beim Self-Hosting: eine App-Instanz betreiben. Wenn später mehrere Serv
 - **Seiten** – längere statische Inhalte
 - **Website-Einstellungen**
 
-Die Teamseite `/team` zeigt aktive Profile aus **Team & Ansprechpartner**, nach Reihenfolge sortiert. Gesa und Nico werden einmalig mit `gesa@uwr-kn.de` und `nico@uwr-kn.de` angelegt; auf dem Server übernimmt dies die nächste Produktionsmigration. Lokal vorhandene CMS-Daten lassen sich mit `npm run payload -- run scripts/seed-trainers.ts` ergänzen, ohne vorhandene Profile zu überschreiben. Das Nachrichtenfeld öffnet eine vorbereitete E-Mail im Mailprogramm des Besuchers.
+Die Teamseite `/team` zeigt aktive Profile aus **Team & Ansprechpartner**, nach Reihenfolge sortiert. Gesa und Nico werden einmalig mit `gesa@uwr-kn.de` und `nico@uwr-kn.de` angelegt; auf dem Server übernimmt dies die nächste Produktionsmigration. Lokal vorhandene CMS-Daten lassen sich mit `npm run payload -- run scripts/seed-trainers.ts` ergänzen, ohne vorhandene Profile zu überschreiben.
+
+Das Kontaktformular sendet mit E-Mail-Adresse, optionaler Handynummer und Nachricht direkt über SMTP. Unter **Website-Einstellungen → Kontakt-E-Mail / Verteiler** lässt sich ein gemeinsamer Empfänger setzen. Bleibt das Feld leer, erhalten alle aktiven Trainer mit E-Mail-Adresse die Nachricht. `CONTACT_TO_EMAIL` kann den CMS-Empfänger überschreiben. Der Besucher wird als Reply-To gesetzt; der Absender ist die eigene SMTP-Adresse. Ohne SMTP-Konfiguration gibt das Formular einen Fehler zurück und behauptet keinen erfolgreichen Versand. Die notwendigen Variablen stehen in `.env.example`; auf dem Server gehören sie ausschließlich in `/srv/uwrkonstanz/shared/app.env`.
 
 ## Ordner
 

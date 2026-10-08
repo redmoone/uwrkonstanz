@@ -15,7 +15,6 @@ export const metadata: Metadata = {
 
 export default async function TeamPage() {
   const members = await getTeamMembers()
-  const recipients = members.flatMap(person => person.email ? [{ id: person.id, name: person.name, email: person.email }] : [])
 
   return <main className="subpage team-page">
     <div className="page-shell">
@@ -41,10 +40,10 @@ export default async function TeamPage() {
         })}
         {!members.length && <p>Unsere Trainerprofile werden gerade ergänzt.</p>}
       </section>
-      {recipients.length > 0 && <section id="nachricht" className="team-message" aria-labelledby="team-message-title">
+      <section id="nachricht" className="team-message" aria-labelledby="team-message-title">
         <div><p className="kicker">WIR FREUEN UNS AUF DICH</p><h2 id="team-message-title">SCHREIB<br />UNS.</h2><p>Ob Probetraining oder eine Frage zum Sport: Unsere Trainer sind für dich da.</p></div>
-        <TrainerMessageForm recipients={recipients} />
-      </section>}
+        <TrainerMessageForm />
+      </section>
     </div>
     <footer className="footer"><div className="page-shell footer__inner"><Logo /><span>UWR Konstanz · Unterwasserrugby am Bodensee</span></div></footer>
   </main>

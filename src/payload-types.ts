@@ -298,6 +298,9 @@ export interface TrainingTime {
   endTime: string;
   location: string;
   address?: string | null;
+  /**
+   * Google-Maps-Link oder die src-Adresse aus Teilen → Karten einbetten. Die Karte erscheint beim Trainingsort.
+   */
   mapUrl?: string | null;
   /**
    * Ab diesem Datum einschließlich gilt die wöchentliche Serie. Leer: kein Startdatum. Für eine Sommerserie den ersten möglichen Trainingstag wählen.
@@ -347,7 +350,7 @@ export interface TrainingBreak {
   createdAt: string;
 }
 /**
- * Trainer und öffentliche Ansprechpartner.
+ * Trainerprofile für die Teamseite. Name, Funktion, E-Mail und optional ein Foto pflegen.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "team-members".
@@ -713,6 +716,9 @@ export interface SiteSetting {
   heroEyebrow?: string | null;
   heroTitle?: string | null;
   heroSubtitle?: string | null;
+  /**
+   * Gemeinsamer Empfänger des Kontaktformulars. Leer: Nachrichten gehen an alle aktiven Trainer mit E-Mail-Adresse.
+   */
   contactEmail?: string | null;
   instagramUrl?: string | null;
   facebookUrl?: string | null;

@@ -147,14 +147,20 @@ img { object-fit: cover; }
 .team-message h2 { font-size: clamp(40px, 5vw, 64px); line-height: .95; }
 .team-message > div > p:last-child { max-width: 380px; font-size: 18px; line-height: 1.6; color: var(--muted); }
 .trainer-message { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; }
+.trainer-message__fields { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; width: 100%; border: 0; margin: 0; padding: 0; }
 .trainer-message label { font-size: 14px; font-weight: 700; }
 .trainer-message label:not(:first-child) { margin-top: 12px; }
-.trainer-message select, .trainer-message textarea { width: 100%; border: 1px solid var(--line); border-radius: 0; padding: 14px 16px; background: var(--white); color: var(--ink); font: inherit; font-size: 16px; }
-.trainer-message select { min-height: 48px; }
+.trainer-message input, .trainer-message textarea { width: 100%; border: 1px solid var(--line); border-radius: 0; padding: 14px 16px; background: var(--white); color: var(--ink); font: inherit; font-size: 16px; }
+.trainer-message input { min-height: 48px; }
 .trainer-message textarea { resize: vertical; min-height: 160px; }
 .trainer-message > p { margin: 0 0 8px; color: var(--muted); font-size: 13px; line-height: 1.5; }
 .trainer-message button { cursor: pointer; }
-.team-page a:focus-visible, .trainer-message :is(select, textarea, button):focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
+.trainer-message button:disabled { opacity: .65; cursor: wait; }
+.trainer-message label > span { color: var(--muted); font-weight: 400; }
+.trainer-message__honeypot { display: none; }
+.trainer-message .trainer-message__feedback { padding: 12px 16px; background: #e1f3ed; color: #164936; }
+.trainer-message .trainer-message__feedback--error { background: #f8e7e5; color: #822d27; }
+.team-page a:focus-visible, .trainer-message :is(input, textarea, button):focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
 @media (max-width: 767px) {
   .trainer-grid { grid-template-columns: 1fr; gap: 20px; padding-bottom: 40px; }
   .trainer-card__portrait { height: 200px; }
