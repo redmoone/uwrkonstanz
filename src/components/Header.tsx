@@ -9,7 +9,7 @@ export function Header() {
         <Link href="/unterwasserrugby">Über UWR</Link>
         <Link href="/training">Training</Link>
         <Link href="/news">News</Link>
-        <a href="/#team">Team</a>
+        <Link href="/team">Team</Link>
       </nav>
     </header>
   )

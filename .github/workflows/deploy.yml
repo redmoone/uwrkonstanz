@@ -75,6 +75,7 @@ jobs:
             http://127.0.0.1:3300/api/users/me | \
             python3 -c 'import json,sys; assert not json.load(sys.stdin).get("user")'
           node tests/training-cms-smoke.mjs http://127.0.0.1:3300
+          node tests/team-cms-smoke.mjs http://127.0.0.1:3300
           kill "$server_pid"
           wait "$server_pid" || true
           trap - EXIT

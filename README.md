@@ -50,6 +50,8 @@ Wichtig beim Self-Hosting: eine App-Instanz betreiben. Wenn später mehrere Serv
 - **Seiten** – längere statische Inhalte
 - **Website-Einstellungen**
 
+Die Teamseite `/team` zeigt aktive Profile aus **Team & Ansprechpartner**, nach Reihenfolge sortiert. Gesa und Nico werden einmalig mit `gesa@uwr-kn.de` und `nico@uwr-kn.de` angelegt; auf dem Server übernimmt dies die nächste Produktionsmigration. Lokal vorhandene CMS-Daten lassen sich mit `npm run payload -- run scripts/seed-trainers.ts` ergänzen, ohne vorhandene Profile zu überschreiben. Das Nachrichtenfeld öffnet eine vorbereitete E-Mail im Mailprogramm des Besuchers.
+
 ## Ordner
 
 - `src/app/(frontend)` – öffentliche Website
