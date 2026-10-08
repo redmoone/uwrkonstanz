@@ -9,7 +9,7 @@ import { getUpcomingTrainings, groupTrainingsByLocation } from '@/lib/training-l
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
-  title: 'Trainingsorte & Termine – UWR Konstanz',
+  title: 'Orte und Termine – UWR Konstanz',
   description: 'Unsere Trainingsorte, nächsten Termine und Ferienpausen: Unterwasserrugby im Schwaketenbad und weitere Trainings am Bodensee.',
 }
 
@@ -32,8 +32,8 @@ export default async function TrainingPage() {
     <div className="page-shell">
       <Header />
       <header className="subpage-header training-page__header">
-        <p className="kicker">TRAININGSORTE & TERMINE</p>
-        <h1>REIN INS<br />WASSER.</h1>
+        <p className="kicker">TRAINING</p>
+        <h1>ORTE UND<br />TERMINE</h1>
         <p className="training-page__intro">Wo wir trainieren. Wann wir im Wasser sind. Und wann wir Pause machen.</p>
       </header>
 
