@@ -15,6 +15,12 @@ type Props = {
   onHoverChange: (id: string | null) => void
 }
 const restingCamera: Camera = { x: 0, y: 0, zoom: 1 }
+// Smoothstep opacity at each photo edge; the entire interior stays opaque.
+const edgeOpacity = [0, .15625, .5, .84375, 1]
+const edgeStops = (width: number) => [
+  ...edgeOpacity.map((opacity, index) => ({ offset: `${index * width / 4}%`, opacity })),
+  ...edgeOpacity.map((opacity, index) => ({ offset: `${100 - index * width / 4}%`, opacity })).reverse(),
+]
 
 export function InteractiveImage({ image, hotspots, activeId, camera: target, animateCamera, onHoverChange }: Props) {
   const svgRef = useRef<SVGSVGElement>(null)
@@ -92,9 +98,28 @@ export function InteractiveImage({ image, hotspots, activeId, camera: target, an
         console.info('[UWR trace] original pixels', point)
       }}>
       <title id={`${imageId}-title`}>{image.alt}</title>
+      <defs>
+        <linearGradient id={`${imageId}-edge-x`} x1="0%" x2="100%" y1="0%" y2="0%">
+          {edgeStops(6).map(stop => <stop key={stop.offset} offset={stop.offset}
+            stopColor="#fff" stopOpacity={stop.opacity} />)}
+        </linearGradient>
+        <linearGradient id={`${imageId}-edge-y`} x1="0%" x2="0%" y1="0%" y2="100%">
+          {edgeStops(3).map(stop => <stop key={stop.offset} offset={stop.offset}
+            stopColor="#fff" stopOpacity={stop.opacity} />)}
+        </linearGradient>
+        <mask id={`${imageId}-vertical-fade`} maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse"
+          x="0" y="0" width={image.width} height={image.height} style={{ maskType: 'alpha' }}>
+          <rect x="0" y="0" width={image.width} height={image.height} fill={`url(#${imageId}-edge-y)`} />
+        </mask>
+        <mask id={`${imageId}-photo-fade`} maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse"
+          x="0" y="0" width={image.width} height={image.height} style={{ maskType: 'alpha' }}>
+          <rect x="0" y="0" width={image.width} height={image.height} fill={`url(#${imageId}-edge-x)`}
+            mask={`url(#${imageId}-vertical-fade)`} />
+        </mask>
+      </defs>
       <g ref={cameraRef} data-camera="" transform={`matrix(${camera.zoom} 0 0 ${camera.zoom} ${camera.x} ${camera.y})`}>
         <image href={image.src} x="0" y="0" width={image.width} height={image.height}
-          preserveAspectRatio="none" role="img" aria-label={image.alt} />
+          preserveAspectRatio="none" mask={`url(#${imageId}-photo-fade)`} role="img" aria-label={image.alt} />
         <OutlineOverlay hotspots={hotspots} activeId={activeId} trace={trace} scale={scale} />
         {hotspots.map(point => <HotspotMarker key={point.id} hotspot={point} scale={scale}
           active={isHotspotActive(point, activeId)} trace={trace}

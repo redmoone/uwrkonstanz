@@ -168,8 +168,8 @@ img { object-fit: cover; }
 .uwr-page .interactive-image__svg { display: block; width: 100%; height: auto; }
 .uwr-page .explainerStory[data-enhanced="true"] .interactive-image,
 .uwr-page .explainerStory[data-enhanced="true"] .interactive-image__svg { width: 100%; height: 100%; }
-.uwr-page .explainerStage__shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, var(--navy), transparent 4%, transparent 96%, var(--navy)); }
-.uwr-page .explainerStory[data-enhanced="true"] .explainerStage__shade { background: linear-gradient(270deg, rgba(3,39,63,.72), transparent 38%), linear-gradient(90deg, var(--navy), transparent 4%, transparent 96%, var(--navy)); }
+.uwr-page .explainerStage__shade { position: absolute; inset: 0; pointer-events: none; }
+.uwr-page .explainerStory[data-enhanced="true"] .explainerStage__shade { background: linear-gradient(270deg, rgba(3,39,63,.72), transparent 38%); }
 .uwr-page .storyCopy { max-width: 500px; }
 .uwr-page .storyCopy h2 { margin: 0; white-space: pre-line; font-size: clamp(40px, 4.4vw, 70px); font-weight: 900; line-height: .95; letter-spacing: -.035em; }
 .uwr-page .storyCopy > p:not(.kicker) { max-width: 420px; font-size: 18px; line-height: 1.6; margin: 24px 0 0; color: rgba(255,255,255,.85); }

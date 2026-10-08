@@ -19,6 +19,11 @@ Foto, Konturen und alle Marker liegen in derselben SVG-Kameragruppe.
 750 ms mit sanftem Ein-/Auslauf. Kameragrenzen halten alle 44-px-Ziele
 innerhalb des Bildkoordinatenraums. Hover bewegt die Kamera nicht.
 
+Die Fotokanten besitzen eine eigene SVG-Alpha-Maske: seitlich 6 %, oben/unten
+3 % mit weich abgestuftem Verlauf. Sie folgt dem Foto innerhalb der Kamera,
+nicht dem Viewport. Das Bildinnere bleibt vollständig opak; Marker, Konturen
+und Trace bleiben unmaskiert. Der separate Textlesbarkeitsverlauf bleibt erhalten.
+
 Sechs unsichtbare 90svh-Trigger steuern die Geschichte:
 Ball → Korb → Ausrüstung → Deckel → Untertor/Dackel → Stürmer.
 Keine Bildwechsel, Crossfades, Kapitelkarten, Kapitel-Navigation oder
