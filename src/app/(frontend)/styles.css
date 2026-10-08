@@ -214,7 +214,7 @@ img { object-fit: cover; }
 @media (max-width: 767px) {
   .uwr-page .explainerStory[data-enhanced="true"] .explainerStage { display: flex; flex-direction: column; }
   .uwr-page .explainerStory[data-enhanced="true"] .interactive-image { flex: 0 0 auto; height: auto; width: 100%; }
-  .uwr-page .explainerStory[data-enhanced="true"] .interactive-image__svg { width: 125%; max-width: none; margin-left: -12.5%; height: auto; max-height: 52svh; aspect-ratio: 3 / 2; }
+  .uwr-page .explainerStory[data-enhanced="true"] .interactive-image__svg { width: 150%; max-width: none; margin-left: -25%; height: auto; max-height: 56svh; aspect-ratio: 3 / 2; }
   .uwr-page .explainerStory[data-enhanced="true"] .explainerStage__shade { background: none; }
   .uwr-page .explainerStory[data-enhanced="true"] .explainerStage__copy { position: static; width: auto; padding: 24px 20px; }
   .uwr-page .explainerStage__copy .storyCopy h2 { font-size: clamp(28px, 8vw, 42px); }
