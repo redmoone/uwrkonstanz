@@ -214,13 +214,13 @@ img { object-fit: cover; }
 @media (max-width: 767px) {
   .uwr-page .explainerStory[data-enhanced="true"] .explainerStage { display: flex; flex-direction: column; }
   .uwr-page .explainerStory[data-enhanced="true"] .interactive-image { flex: 0 0 auto; height: auto; width: 100%; }
-  .uwr-page .explainerStory[data-enhanced="true"] .interactive-image__svg { height: auto; aspect-ratio: 3 / 2; }
+  .uwr-page .explainerStory[data-enhanced="true"] .interactive-image__svg { width: 125%; max-width: none; margin-left: -12.5%; height: auto; max-height: 52svh; aspect-ratio: 3 / 2; }
   .uwr-page .explainerStory[data-enhanced="true"] .explainerStage__shade { background: none; }
   .uwr-page .explainerStory[data-enhanced="true"] .explainerStage__copy { position: static; width: auto; padding: 24px 20px; }
   .uwr-page .explainerStage__copy .storyCopy h2 { font-size: clamp(28px, 8vw, 42px); }
   .uwr-page .explainerStage__copy .storyCopy > p:not(.kicker) { margin-top: 16px; font-size: 16px; line-height: 1.5; }
   .uwr-page .explainerStory[data-enhanced="true"] .stageExploration { position: static; width: auto; margin: 0; padding: 0 20px 16px; }
-  .uwr-page .storyTrigger { height: 65svh; }
+  .uwr-page .storyTrigger { height: 120svh; }
   .uwr-page .explainer-hero__copy { padding: 24px 0 44px; }
   .uwr-page .explainer-hero h1 { font-size: clamp(26px, 8.4vw, 64px); }
   .uwr-page .explainer-hero__copy > p:not(.kicker) { margin-top: 22px; font-size: 16px; }

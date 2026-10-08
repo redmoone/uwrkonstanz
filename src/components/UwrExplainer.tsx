@@ -38,6 +38,31 @@ export function UwrExplainer() {
 
   useEffect(() => {
     if (!enhanced) return
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      // Let touch momentum settle before starting a new camera flight. A
+      // generous boundary margin avoids toggling when a swipe stops near a step.
+      let selectedIndex = 0
+      let timer: ReturnType<typeof setTimeout> | undefined
+      const selectSettledStep = () => {
+        const triggers = triggerRefs.current
+        const margin = 80
+        while (selectedIndex < uwrStageSteps.length - 1
+          && (triggers[selectedIndex + 1]?.getBoundingClientRect().top ?? Infinity) < -margin) selectedIndex++
+        while (selectedIndex > 0
+          && (triggers[selectedIndex]?.getBoundingClientRect().top ?? -Infinity) > margin) selectedIndex--
+        const step = uwrStageSteps[selectedIndex]
+        setScrollStepId(step.id)
+        setScrollActiveId(step.id)
+        setHoveredId(null)
+      }
+      const settle = () => {
+        clearTimeout(timer)
+        timer = setTimeout(selectSettledStep, 180)
+      }
+      selectSettledStep()
+      window.addEventListener('scroll', settle, { passive: true })
+      return () => { clearTimeout(timer); window.removeEventListener('scroll', settle) }
+    }
     let observer: IntersectionObserver
     const select = (index: number) => {
       const step = uwrStageSteps[index]
