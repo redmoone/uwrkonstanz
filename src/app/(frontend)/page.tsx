@@ -9,8 +9,7 @@ import { getHomeData } from '@/lib/home-data'
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
-  const { posts, training } = await getHomeData()
-  const primaryTraining = training[0]
+  const { posts, nextTraining } = await getHomeData()
 
   return (
     <main>
@@ -66,20 +65,24 @@ export default async function HomePage() {
         <div className="page-shell content-grid">
           <div className="training-card">
             <p className="kicker">TRAINING</p>
-            <h2>TRAININGS<wbr />ZEITEN</h2>
+            <h2>NÄCHSTES<br />TRAINING</h2>
             <p>Du willst es selbst ausprobieren? Komm vorbei – auch ohne UWR-Erfahrung.</p>
-            {primaryTraining && (
+            {nextTraining && (
               <div className="training-info">
                 <CalendarDays />
-                <div><strong>{primaryTraining.weekday}</strong><span>{primaryTraining.startTime}–{primaryTraining.endTime} Uhr</span></div>
+                <div>
+                  <strong><time dateTime={nextTraining.date}>{nextTraining.dateLabel}</time></strong>
+                  <span>{nextTraining.training.startTime}–{nextTraining.training.endTime} Uhr</span>
+                </div>
               </div>
             )}
-            {primaryTraining && (
+            {nextTraining && (
               <div className="training-info">
                 <MapPin />
-                <div><strong>{primaryTraining.location}</strong><span>{primaryTraining.address}</span></div>
+                <div><strong>{nextTraining.training.location}</strong><span>{nextTraining.training.address}</span></div>
               </div>
             )}
+            {!nextTraining && <p>Aktuell ist kein nächster Trainingstermin verfügbar. Melde dich bei uns, bevor du vorbeikommst.</p>}
             <Link className="button button--navy" href="/training">MEHR ZUM TRAINING <span>→</span></Link>
           </div>
 

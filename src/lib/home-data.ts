@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import type { Media } from '@/payload-types'
 import { getPublishedPosts } from '@/lib/news-data'
+import { getNextTraining } from '@/lib/training-schedule'
 
 export type HomePost = {
   id: number | string
@@ -28,10 +29,6 @@ const fallbackPosts: HomePost[] = [
   { id: 'fallback-3', title: 'Neugierig? Komm zum Probetraining', slug: 'probetraining', excerpt: 'Du brauchst keine UWR-Erfahrung. Wir zeigen dir den Rest.', publishedAt: '2026-08-21' },
 ]
 
-const fallbackTraining: TrainingTime[] = [
-  { id: 'fallback-training', label: 'Training', weekday: 'dienstag & donnerstag', startTime: '20:00', endTime: '21:30', location: 'Schwaketenbad Konstanz', address: 'Schwaketenstraße 35, 78467 Konstanz' },
-]
-
 export async function getHomeData() {
   try {
     const payload = await getPayload({ config: configPromise })
@@ -39,8 +36,7 @@ export async function getHomeData() {
       getPublishedPosts(3),
       payload.find({
         collection: 'training-times',
-        limit: 10,
-        sort: 'sortOrder',
+        pagination: false,
         overrideAccess: false,
         where: { active: { equals: true } },
       }),
@@ -48,9 +44,9 @@ export async function getHomeData() {
 
     return {
       posts: (postsResult.docs.length ? postsResult.docs : fallbackPosts) as unknown as HomePost[],
-      training: (trainingResult.docs.length ? trainingResult.docs : fallbackTraining) as unknown as TrainingTime[],
+      nextTraining: getNextTraining(trainingResult.docs as TrainingTime[]),
     }
   } catch {
-    return { posts: fallbackPosts, training: fallbackTraining }
+    return { posts: fallbackPosts, nextTraining: undefined }
   }
 }

@@ -25,7 +25,17 @@ und Bildvarianten unter `media/`.
 Turniere, Trainingslager, Aktionen, Probetrainings-Termine.
 
 ## Trainingszeiten (`training-times`)
-Änderbar ohne Deployment. Die Startseite zieht automatisch den ersten aktiven Eintrag.
+Änderbar ohne Deployment. Die Startseite berechnet aus allen aktiven wöchentlichen
+Trainingszeiten den nächsten Beginn in `Europe/Berlin` und zeigt Datum, Uhrzeit
+und Ort. Bereits begonnene Einheiten werden nicht als nächster Termin angezeigt;
+die Auswahl springt zur nächsten noch bevorstehenden Einheit, nötigenfalls in
+der Folgewoche. Die Berechnung wird bei jedem Seitenaufruf erneuert.
+
+Das alte Feld `sortOrder` bleibt für Datenbankkompatibilität erhalten, ist aber
+im Admin ausgeblendet und beeinflusst die Auswahl nicht mehr. Start und Ende
+müssen gültige Uhrzeiten sein, z. B. `19:10`. Ohne aktive, gültige Einträge werden
+keine Ersatz-Trainingszeiten erfunden, sondern ein Hinweis angezeigt. Ausfälle,
+Ferien und einmalige Terminänderungen sind noch nicht gesondert modelliert.
 
 ## Bilder (`media`)
 Alt-Text, Credit, Quelle, Nutzungsrecht und Freigabehinweis. Das verhindert später Lizenz-Chaos.

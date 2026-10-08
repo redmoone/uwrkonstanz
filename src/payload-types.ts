@@ -279,7 +279,7 @@ export interface Event {
   createdAt: string;
 }
 /**
- * Trainingszeiten ändern, ohne die Website anfassen zu müssen.
+ * Wöchentliche Trainingszeiten pflegen. Die Startseite zeigt automatisch den nächsten aktiven Termin an.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "training-times".
