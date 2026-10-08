@@ -133,6 +133,30 @@ img { object-fit: cover; }
 .subpage-header h1 { max-width: 900px; font-size: clamp(56px, 8vw, 110px); line-height: .9; margin: 0; text-transform: uppercase; color: var(--navy); }
 .subpage-content { padding: 40px 0 90px; max-width: 800px; font-size: 18px; line-height: 1.7; }
 
+.page-hero { position: relative; overflow: hidden; isolation: isolate; background: var(--navy); color: var(--white); }
+.page-hero > img { object-fit: cover; }
+.page-hero--team > img { object-position: center 46%; }
+.page-hero--training > img { object-position: center 55%; }
+.page-hero__shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(3,39,63,.86), rgba(3,39,63,.52) 50%, rgba(3,39,63,.12)), linear-gradient(0deg, rgba(3,39,63,.4), transparent 70%); }
+.page-hero__inner { position: relative; min-height: 560px; display: flex; flex-direction: column; }
+.subpage .page-hero .site-header, .subpage .page-hero .main-nav a, .page-hero .subpage-header h1 { color: var(--white); }
+.subpage .page-hero .main-nav a:hover { color: var(--cyan); }
+.page-hero .subpage-header { margin: auto 0 0; padding: 48px 0 64px; }
+.page-hero .subpage-header .kicker { color: var(--cyan); }
+.page-hero .subpage-header > p:last-child { max-width: 580px; color: rgba(255,255,255,.9); }
+.team-page .trainer-grid { padding-top: 48px; }
+.training-page__content { padding-top: 40px; }
+@media (max-width: 767px) {
+  .page-hero__inner { min-height: 520px; }
+  .page-hero--team > img { object-position: 52% 42%; }
+  .page-hero--training > img { object-position: 57% center; }
+  .page-hero__shade { background: linear-gradient(0deg, rgba(3,39,63,.88), rgba(3,39,63,.3) 65%, rgba(3,39,63,.45)); }
+  .page-hero .subpage-header { padding: 40px 0; }
+  .page-hero .subpage-header h1 { font-size: clamp(48px, 13vw, 72px); }
+  .page-hero .subpage-header > p:last-child { font-size: 16px; }
+  .team-page .trainer-grid, .training-page__content { padding-top: 28px; }
+}
+
 .team-page__header > p:last-child { max-width: 520px; margin: 28px 0 0; font-size: 18px; line-height: 1.6; color: var(--muted); }
 .trainer-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; padding: 16px 0 64px; }
 .trainer-card { overflow: hidden; background: var(--navy); color: var(--white); }

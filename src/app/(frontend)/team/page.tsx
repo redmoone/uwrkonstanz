@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { Mail } from 'lucide-react'
-import { Header } from '@/components/Header'
+import { PageHero } from '@/components/PageHero'
 import { Logo } from '@/components/Logo'
 import { TrainerMessageForm } from '@/components/TrainerMessageForm'
 import { getTeamMembers } from '@/lib/team-data'
@@ -17,13 +17,15 @@ export default async function TeamPage() {
   const members = await getTeamMembers()
 
   return <main className="subpage team-page">
-    <div className="page-shell">
-      <Header />
+    <PageHero image="/images/uwr/source/bundesliga-klassenerhalt-bodensee.png"
+      alt="Das Team von UWR Bodensee gemeinsam am Beckenrand" variant="team">
       <header className="subpage-header team-page__header">
         <p className="kicker">DAS TEAM HINTER DEM TRAINING</p>
         <h1>UNSERE<br />TRAINER</h1>
         <p>Fragen zum Training oder Lust auf deinen ersten Tauchgang? Schreib uns.</p>
       </header>
+    </PageHero>
+    <div className="page-shell">
       <section className="trainer-grid" aria-label="Trainer und Ansprechpartner">
         {members.map(person => {
           const photo = typeof person.photo === 'object' ? person.photo : null

@@ -50,6 +50,13 @@ Für hochauflösende Retina-Ansichten der beiden Erklärfotos die Originale
 nachreichen. Konkrete Fotocredits und dauerhafte Nutzungsrechte
 dieser beiden Dateien vor dem öffentlichen Launch bestätigen.
 
+## Team- und Trainingsseite
+
+- `/team`: Gruppenfoto `public/images/uwr/source/bundesliga-klassenerhalt-bodensee.png` als großer Seitenauftakt.
+- `/training`: `public/images/uwr/variants/poolside-original-web.jpg` als großer Seitenauftakt mit der Trainingsszene am Beckenrand.
+- Beide verwenden `PageHero` mit einer dunklen Überlagerung für Navigation und Text sowie eigenen Bildausschnitten für Mobilgeräte.
+- Individuelle Trainerfotos werden weiterhin über das Foto-Feld der Trainerprofile im CMS gepflegt.
+
 ## Portrait-Varianten
 
 Die vorhandenen 4:5-Crops liegen unter `public/images/uwr/variants/*portrait*` und eignen sich für mobile Teaser/News.

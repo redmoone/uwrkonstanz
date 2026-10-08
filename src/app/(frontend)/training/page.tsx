@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { ArrowDown, CalendarDays, CalendarOff, Clock3, MapPin } from 'lucide-react'
-import { Header } from '@/components/Header'
+import { PageHero } from '@/components/PageHero'
 import { Logo } from '@/components/Logo'
 import { TrainingLocationMap } from '@/components/TrainingLocationMap'
 import { getHomeData } from '@/lib/home-data'
@@ -29,13 +29,15 @@ export default async function TrainingPage() {
   const locations = groupTrainingsByLocation(trainings, now, trainingBreaks)
 
   return <main className="subpage training-page">
-    <div className="page-shell">
-      <Header />
+    <PageHero image="/images/uwr/variants/poolside-original-web.jpg"
+      alt="Unterwasserrugby-Spieler mit Maske und Kappe beim Training am Beckenrand" variant="training">
       <header className="subpage-header training-page__header">
         <p className="kicker">TRAINING</p>
         <h1>ORTE UND<br />TERMINE</h1>
         <p className="training-page__intro">Wo wir trainieren. Wann wir im Wasser sind. Und wann wir Pause machen.</p>
       </header>
+    </PageHero>
+    <div className="page-shell training-page__content">
 
       <section className="training-next" aria-labelledby="training-next-title">
         <div className="training-next__label"><CalendarDays size={26} aria-hidden="true" /><h2 id="training-next-title">NÄCHSTES TRAINING</h2></div>
