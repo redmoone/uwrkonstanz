@@ -6,7 +6,6 @@ import { StoryLinear } from './uwr/StoryLinear'
 import { StoryTrigger } from './uwr/StoryTrigger'
 import { StoryTranscript } from './uwr/StoryTranscript'
 import { uwrStageSteps } from '@/lib/uwr-stage'
-import { uwrHotspots } from '@/lib/uwr-hotspots'
 
 export function UwrExplainer() {
   const [enhanced, setEnhanced] = useState(false)
@@ -21,18 +20,20 @@ export function UwrExplainer() {
   useEffect(() => {
     // Avoid cropping key objects on unusually tall or ultra-wide viewports.
     const desktop = window.matchMedia('(min-width: 768px) and (min-height: 600px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/2)')
+    const mobile = window.matchMedia('(max-width: 767px) and (min-height: 500px)')
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
     const update = () => {
-      const nextEnhanced = desktop.matches && !reduced.matches && 'IntersectionObserver' in window
+      const nextEnhanced = (desktop.matches || mobile.matches) && !reduced.matches && 'IntersectionObserver' in window
       setEnhanced(nextEnhanced)
       setScrollStepId(uwrStageSteps[0].id)
-      setScrollActiveId(uwrStageSteps[0].id)
+      setScrollActiveId(nextEnhanced ? uwrStageSteps[0].id : null)
       setHoveredId(null)
     }
     update()
     desktop.addEventListener('change', update)
+    mobile.addEventListener('change', update)
     reduced.addEventListener('change', update)
-    return () => { desktop.removeEventListener('change', update); reduced.removeEventListener('change', update) }
+    return () => { desktop.removeEventListener('change', update); mobile.removeEventListener('change', update); reduced.removeEventListener('change', update) }
   }, [])
 
   useEffect(() => {
@@ -86,6 +87,7 @@ export function UwrExplainer() {
       window.scrollTo({ top: transitionTarget, behavior: 'smooth' })
     }
     const wheel = (event: WheelEvent) => {
+      if (window.matchMedia('(max-width: 767px)').matches) return
       if (event.defaultPrevented || !event.cancelable || event.ctrlKey || event.metaKey || event.shiftKey
         || event.deltaY === 0 || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
       // Track the entire gesture, including momentum arriving in another panel.
@@ -189,26 +191,13 @@ export function UwrExplainer() {
       data-enhanced={enhanced} data-state={activeStep.id} data-step={activeStep.id}
       data-scroll-active-id={scrollActiveId ?? ''} data-active-id={activeId ?? ''} data-hovered-id={hoveredId ?? ''}>
       <ExplainerStage step={activeStep} activeId={activeId} hoveredId={hoveredId}
-        enhanced={enhanced} onHoverChange={id => {
-          if (enhanced) { setHoveredId(id); return }
-          if (!id) return
-          const point = uwrHotspots.find(point => point.id === id)
-          const selectedStep = uwrStageSteps.find(step => step.id === (point?.groupId ?? id))
-          if (!selectedStep) return
-          setScrollStepId(selectedStep.id)
-          setScrollActiveId(id)
-          setHoveredId(id)
-        }} />
+        enhanced={enhanced} onHoverChange={setHoveredId} />
       <div className="scrollDriver" aria-hidden="true" inert>
         {uwrStageSteps.map((step, index) => <StoryTrigger key={step.id} step={step}
           ref={element => { triggerRefs.current[index] = element }} />)}
       </div>
       <StoryTranscript enabled={enhanced} />
-      <StoryLinear enabled={!enhanced} activeStep={activeStep} onSelect={id => {
-        setScrollStepId(id)
-        setScrollActiveId(id)
-        setHoveredId(null)
-      }} />
+      <StoryLinear enabled={!enhanced} />
     </section>
   )
 }
