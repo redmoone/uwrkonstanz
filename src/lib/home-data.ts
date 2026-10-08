@@ -21,6 +21,7 @@ export type TrainingTime = {
   endTime: string
   location: string
   address?: string | null
+  mapUrl?: string | null
   validFrom?: string | null
   validUntil?: string | null
   oneOffDate?: string | null

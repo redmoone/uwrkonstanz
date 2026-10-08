@@ -42,7 +42,7 @@ export const TrainingTimes: CollectionConfig = {
     { name: 'endTime', label: 'Ende', type: 'text', required: true, validate: validateTime, admin: { placeholder: '20:40' } },
     { name: 'location', label: 'Bad / Ort', type: 'text', required: true },
     { name: 'address', label: 'Adresse', type: 'text' },
-    { name: 'mapUrl', label: 'Karten-Link', type: 'text' },
+    { name: 'mapUrl', label: 'Karten-Link', type: 'text', admin: { description: 'Google-Maps-Link oder die src-Adresse aus Teilen → Karten einbetten. Die Karte erscheint beim Trainingsort.' } },
     {
       name: 'validFrom', label: 'Serie gültig ab (optional)', type: 'date',
       validate: (value, { siblingData }) => {

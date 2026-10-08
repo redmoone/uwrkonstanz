@@ -51,8 +51,11 @@ zählen mit. Mit einem Eintrag lassen sich mehrere Schwaketenbad-Serien pausiere
 während die Sommer-Serie im Freibad davon unabhängig weiterläuft.
 
 Die Startseite überspringt ausgefallene Termine, auch über mehrere Wochen und
-überlappende Pausen. Unter `/training` stehen die Serien, Einzeltermine und
-aktuellen/geplanten Ausfälle. Änderungen im CMS gelten ohne Git-Push oder Neustart.
+überlappende Pausen. Unter `/training` werden alle Trainings nach dem Namen ihres Bads/Orts zusammengefasst.
+Jeder Ort zeigt reguläre Zeiten, die nächsten sechs tatsächlichen Termine und seine
+aktuellen/geplanten Ausfälle. Die Ortsnamen sollten im CMS einheitlich geschrieben
+werden. `mapUrl` akzeptiert einen Google-Maps-Link oder die `src`-Adresse aus
+„Teilen → Karten einbetten“; die interaktive Karte wird auf Wunsch direkt geladen. Änderungen im CMS gelten ohne Git-Push oder Neustart.
 Ferientermine werden bewusst vom Verein gepflegt; es wird kein Hochschulkalender
 angenommen. Für einen verschobenen Einzeltermin wird das Original als Ein-Tages-Ausfall
 markiert und ein neuer Einzeltermin mit geändertem Ort oder Uhrzeit angelegt.
