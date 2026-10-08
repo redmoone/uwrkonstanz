@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useId, useRef, useState } from 'react'
+import { fitHotspotCamera, type PhotoBounds } from '@/lib/uwr-camera'
 import { HotspotMarker } from './HotspotMarker'
 import { OutlineOverlay } from './OutlineOverlay'
 import { DEBUG_HOTSPOTS } from '@/lib/uwr-hotspots'
@@ -12,7 +13,8 @@ type Props = {
   activeId: string | null
   camera: Camera
   mobileCamera?: Camera
-  cameraFocusId?: string
+  selectedId: string | null
+  onActivate: (id: string) => void
   animateCamera: boolean
   onHoverChange: (id: string | null) => void
 }
@@ -24,14 +26,14 @@ const edgeStops = (width: number) => [
   ...edgeOpacity.map((opacity, index) => ({ offset: `${100 - index * width / 4}%`, opacity })).reverse(),
 ]
 
-export function InteractiveImage({ image, hotspots, activeId, camera: target, mobileCamera, cameraFocusId, animateCamera, onHoverChange }: Props) {
+export function InteractiveImage({ image, hotspots, activeId, camera: target, mobileCamera, selectedId, onActivate, animateCamera, onHoverChange }: Props) {
   const svgRef = useRef<SVGSVGElement>(null)
   const cameraRef = useRef<SVGGElement>(null)
   const currentCamera = useRef(restingCamera)
   const [camera, setCamera] = useState(restingCamera)
   const [baseScale, setBaseScale] = useState(1)
   const [isMobile, setIsMobile] = useState(false)
-  const [visibleFrame, setVisibleFrame] = useState<{ left: number; right: number; top: number; bottom: number } | null>(null)
+  const [visibleFrame, setVisibleFrame] = useState<PhotoBounds | null>(null)
   const [trace, setTrace] = useState(DEBUG_HOTSPOTS)
   const [tracePoint, setTracePoint] = useState<{ x: number; y: number } | null>(null)
   const imageId = `story-image-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
@@ -48,45 +50,44 @@ export function InteractiveImage({ image, hotspots, activeId, camera: target, mo
       if (!matrix) return
       const rect = svg.getBoundingClientRect()
       const frame = svg.parentElement?.getBoundingClientRect() ?? rect
-      // The phone clips the 150%-wide SVG: constrain the focused markers to
-      // the actual visible photo rather than the offscreen SVG edges.
-      setVisibleFrame({
-        left: (Math.max(rect.left, frame.left) - matrix.e) / matrix.a,
-        right: (Math.min(rect.right, frame.right) - matrix.e) / matrix.a,
-        top: (Math.max(rect.top, frame.top) - matrix.f) / matrix.d,
-        bottom: (Math.min(rect.bottom, frame.bottom) - matrix.f) / matrix.d,
-      })
+      const next = {
+        left: Math.max(0, (Math.max(rect.left, frame.left) - matrix.e) / matrix.a),
+        right: Math.min(image.width, (Math.min(rect.right, frame.right) - matrix.e) / matrix.a),
+        top: Math.max(0, (Math.max(rect.top, frame.top) - matrix.f) / matrix.d),
+        bottom: Math.min(image.height, (Math.min(rect.bottom, frame.bottom) - matrix.f) / matrix.d),
+      }
+      setVisibleFrame(previous => previous && Object.keys(next).every(key =>
+        Math.abs(next[key as keyof PhotoBounds] - previous[key as keyof PhotoBounds]) < .1) ? previous : next)
     }
     update()
     const observer = new ResizeObserver(update)
     observer.observe(svg)
     return () => observer.disconnect()
-  }, [])
+  }, [image.width, image.height])
 
   useEffect(() => {
     const targetCamera = isMobile && mobileCamera ? mobileCamera : target
-    const focused = isMobile && cameraFocusId
-      ? hotspots.filter(point => isHotspotActive(point, cameraFocusId)) : hotspots
-    const points = focused.length ? focused : hotspots
+    const points = hotspots
     const margin = 24 / Math.max(.01, baseScale)
     const minX = Math.min(...points.map(point => point.x))
     const maxX = Math.max(...points.map(point => point.x))
     const minY = Math.min(...points.map(point => point.y))
     const maxY = Math.max(...points.map(point => point.y))
     const viewBounds = isMobile && visibleFrame ? visibleFrame : { left: 0, right: image.width, top: 0, bottom: image.height }
-    const destination = animateCamera ? {
+    const destination = !animateCamera ? restingCamera : isMobile
+      ? fitHotspotCamera(targetCamera, points, viewBounds, baseScale, image) : {
       zoom: targetCamera.zoom,
       x: Math.min(0, viewBounds.right - margin - maxX * targetCamera.zoom,
         Math.max(image.width * (1 - targetCamera.zoom), viewBounds.left + margin - minX * targetCamera.zoom, targetCamera.x)),
       y: Math.min(0, viewBounds.bottom - margin - maxY * targetCamera.zoom,
         Math.max(image.height * (1 - targetCamera.zoom), viewBounds.top + margin - minY * targetCamera.zoom, targetCamera.y)),
-    } : restingCamera
+    }
     if (!animateCamera || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       currentCamera.current = destination
       setCamera(destination)
       return
     }
-    const origin = currentCamera.current
+    const origin = isMobile ? fitHotspotCamera(currentCamera.current, points, viewBounds, baseScale, image) : currentCamera.current
     let frame = 0
     const started = performance.now()
     const tick = (now: number) => {
@@ -103,7 +104,7 @@ export function InteractiveImage({ image, hotspots, activeId, camera: target, mo
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [target, mobileCamera, cameraFocusId, isMobile, visibleFrame, animateCamera, baseScale, hotspots, image.width, image.height])
+  }, [target, mobileCamera, isMobile, visibleFrame, animateCamera, baseScale, hotspots, image.width, image.height])
 
   return <figure className="interactive-image">
     <svg ref={svgRef} className="interactive-image__svg" viewBox={`0 0 ${image.width} ${image.height}`}
@@ -144,8 +145,8 @@ export function InteractiveImage({ image, hotspots, activeId, camera: target, mo
           preserveAspectRatio="none" mask={`url(#${imageId}-photo-fade)`} role="img" aria-label={image.alt} />
         <OutlineOverlay hotspots={hotspots} activeId={activeId} trace={trace} scale={scale} />
         {hotspots.map(point => <HotspotMarker key={point.id} hotspot={point} scale={scale}
-          active={isHotspotActive(point, activeId)} trace={trace}
-          onHoverChange={onHoverChange} describedBy={`${imageId}-${point.id}`} />)}
+          active={isHotspotActive(point, activeId)} expanded={selectedId === point.id} trace={trace}
+          onHoverChange={onHoverChange} onActivate={onActivate} describedBy={`${imageId}-${point.id}`} />)}
         {trace && <g className="hotspot-debug" aria-hidden="true" style={{ fontSize: `${11 / scale}px` }}>
           <rect x="1" y="1" width={image.width - 2} height={image.height - 2} fill="none" stroke="var(--cyan)" vectorEffect="non-scaling-stroke" />
           {Array.from({ length: Math.ceil(image.width / 50) - 1 }, (_, index) => (index + 1) * 50).map(x =>

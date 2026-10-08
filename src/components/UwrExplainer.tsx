@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { HotspotDialog } from './uwr/HotspotDialog'
+import { uwrHotspots } from '@/lib/uwr-hotspots'
 import { ExplainerStage } from './uwr/ExplainerStage'
 import { StoryLinear } from './uwr/StoryLinear'
 import { StoryTrigger } from './uwr/StoryTrigger'
@@ -12,10 +14,11 @@ export function UwrExplainer() {
   const [scrollStepId, setScrollStepId] = useState(uwrStageSteps[0].id)
   const [scrollActiveId, setScrollActiveId] = useState<string | null>(uwrStageSteps[0].id)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const triggerRefs = useRef<(HTMLDivElement | null)[]>([])
   const storyRef = useRef<HTMLElement>(null)
   const activeStep = uwrStageSteps.find(step => step.id === scrollStepId) ?? uwrStageSteps[0]
-  const activeId = hoveredId ?? scrollActiveId
+  const activeId = selectedId ?? hoveredId ?? scrollActiveId
 
   useEffect(() => {
     // Avoid cropping key objects on unusually tall or ultra-wide viewports.
@@ -124,6 +127,8 @@ export function UwrExplainer() {
       const touchStart = (event: TouchEvent) => {
         gesture = null
         if (event.touches.length !== 1 || !(event.target instanceof Node)) return
+        // Let taps and scrolling text use the browser’s normal touch behavior.
+        if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea, .explainerStage__copy, [data-hotspot-controls]')) return
         const panel = [introduction, story, conclusion].find(panel => panel?.contains(event.target as Node))
         if (!panel) return
         clearTimeout(timer)
@@ -326,13 +331,15 @@ export function UwrExplainer() {
       data-enhanced={enhanced} data-state={activeStep.id} data-step={activeStep.id}
       data-scroll-active-id={scrollActiveId ?? ''} data-active-id={activeId ?? ''} data-hovered-id={hoveredId ?? ''}>
       <ExplainerStage step={activeStep} activeId={activeId} hoveredId={hoveredId}
-        enhanced={enhanced} onHoverChange={setHoveredId} />
+        enhanced={enhanced} selectedId={selectedId} onActivate={setSelectedId} onHoverChange={setHoveredId} />
       <div className="scrollDriver" aria-hidden="true" inert>
         {uwrStageSteps.map((step, index) => <StoryTrigger key={step.id} step={step}
           ref={element => { triggerRefs.current[index] = element }} />)}
       </div>
       <StoryTranscript enabled={enhanced} />
       <StoryLinear enabled={!enhanced} />
+      <HotspotDialog hotspot={uwrHotspots.find(point => point.id === selectedId) ?? null}
+        onClose={() => { setSelectedId(null); setHoveredId(null) }} />
     </section>
   )
 }

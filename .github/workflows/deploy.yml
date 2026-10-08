@@ -32,7 +32,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Check training schedule
-        run: node --test tests/training-schedule.test.mjs tests/training-locations.test.mjs tests/contact.test.mjs
+        run: node --test tests/training-schedule.test.mjs tests/training-locations.test.mjs tests/contact.test.mjs tests/uwr-camera.test.mjs
       - run: pnpm build
       - name: Package Linux standalone application
         run: |

@@ -9,19 +9,26 @@ type Props = {
   activeId: string | null
   hoveredId: string | null
   enhanced: boolean
+  selectedId: string | null
+  onActivate: (id: string) => void
   onHoverChange: (id: string | null) => void
 }
 
-export function ExplainerStage({ step, activeId, hoveredId, enhanced, onHoverChange }: Props) {
+export function ExplainerStage({ step, activeId, hoveredId, enhanced, selectedId, onActivate, onHoverChange }: Props) {
   const explored = uwrHotspots.find(point => point.id === hoveredId)
   return <div className="explainerStage">
     <InteractiveImage image={uwrScenes.positions} hotspots={uwrHotspots} activeId={activeId}
-      camera={step.camera} mobileCamera={step.mobileCamera} cameraFocusId={step.id} animateCamera={enhanced} onHoverChange={onHoverChange} />
+      camera={step.camera} mobileCamera={step.mobileCamera} animateCamera={enhanced} selectedId={selectedId} onActivate={onActivate} onHoverChange={onHoverChange} />
+    <div className="hotspotChoices" role="group" aria-label="Bildpunkte" data-hotspot-controls="">
+      {uwrHotspots.map(point => <button key={point.id} type="button" aria-haspopup="dialog"
+        aria-expanded={selectedId === point.id} onClick={() => onActivate(point.id)}>{point.label}</button>)}
+    </div>
     <div className="explainerStage__shade" aria-hidden="true" />
     <div className="explainerStage__copy" aria-hidden="true">
+      <p className="hotspotHint">Tippe auf einen Punkt oder wähle einen Begriff.</p>
       <StoryCopy key={step.id} state={step} decorative />
     </div>
-    {explored && <div className="stageExploration" aria-hidden={enhanced} aria-live={enhanced ? undefined : 'polite'}>
+    {explored && !selectedId && <div className="stageExploration" aria-hidden={enhanced} aria-live={enhanced ? undefined : 'polite'}>
       <strong>{explored.label}</strong><p>{explored.description}</p>
     </div>}
   </div>
