@@ -194,6 +194,15 @@ img { object-fit: cover; }
 .uwr-page .traceReadout { position: absolute; left: 12px; bottom: 12px; color: var(--cyan); background: var(--navy); padding: 6px 10px; font: 12px monospace; pointer-events: none; }
 .uwr-page .storyLinear__state { width: min(650px, calc(100% - 40px)); margin: 0 auto; padding: 32px 0 24px; }
 .uwr-page .storyLinear__state:last-child { padding-bottom: 64px; }
+.uwr-page .storyLinear__controls { width: min(650px, calc(100% - 40px)); margin: 0 auto; padding-top: 24px; }
+.uwr-page .storyLinear__hint { margin: 0 0 16px; color: rgba(255,255,255,.75); font-size: 14px; line-height: 1.5; }
+.uwr-page .storyLinear__topics { display: flex; flex-wrap: wrap; gap: 8px; }
+.uwr-page .storyLinear__controls button { min-height: 44px; border: 1px solid rgba(115,229,239,.35); border-radius: 6px; background: transparent; color: var(--white); padding: 10px 14px; font: inherit; font-size: 14px; cursor: pointer; }
+.uwr-page .storyLinear__topics button[aria-pressed="true"] { background: var(--cyan); border-color: var(--cyan); color: var(--navy); }
+.uwr-page .storyLinear__controls button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+.uwr-page .storyLinear__controls button:disabled { opacity: .35; cursor: default; }
+.uwr-page .storyLinear__navigation { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 20px; }
+.uwr-page .storyLinear__navigation span { color: var(--cyan); font-size: 14px; }
 .uwr-page .storyLinear .storyCopy h2 { font-size: clamp(34px, 7vw, 64px); }
 .uwr-page .storyLinear .storyCopy > p:not(.kicker) { font-size: 17px; }
 .uwr-page .explainer-cta { min-height: 100svh; background: var(--navy); }

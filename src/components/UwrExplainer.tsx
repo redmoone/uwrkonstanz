@@ -6,6 +6,7 @@ import { StoryLinear } from './uwr/StoryLinear'
 import { StoryTrigger } from './uwr/StoryTrigger'
 import { StoryTranscript } from './uwr/StoryTranscript'
 import { uwrStageSteps } from '@/lib/uwr-stage'
+import { uwrHotspots } from '@/lib/uwr-hotspots'
 
 export function UwrExplainer() {
   const [enhanced, setEnhanced] = useState(false)
@@ -25,7 +26,7 @@ export function UwrExplainer() {
       const nextEnhanced = desktop.matches && !reduced.matches && 'IntersectionObserver' in window
       setEnhanced(nextEnhanced)
       setScrollStepId(uwrStageSteps[0].id)
-      setScrollActiveId(nextEnhanced ? uwrStageSteps[0].id : null)
+      setScrollActiveId(uwrStageSteps[0].id)
       setHoveredId(null)
     }
     update()
@@ -188,13 +189,26 @@ export function UwrExplainer() {
       data-enhanced={enhanced} data-state={activeStep.id} data-step={activeStep.id}
       data-scroll-active-id={scrollActiveId ?? ''} data-active-id={activeId ?? ''} data-hovered-id={hoveredId ?? ''}>
       <ExplainerStage step={activeStep} activeId={activeId} hoveredId={hoveredId}
-        enhanced={enhanced} onHoverChange={setHoveredId} />
+        enhanced={enhanced} onHoverChange={id => {
+          if (enhanced) { setHoveredId(id); return }
+          if (!id) return
+          const point = uwrHotspots.find(point => point.id === id)
+          const selectedStep = uwrStageSteps.find(step => step.id === (point?.groupId ?? id))
+          if (!selectedStep) return
+          setScrollStepId(selectedStep.id)
+          setScrollActiveId(id)
+          setHoveredId(id)
+        }} />
       <div className="scrollDriver" aria-hidden="true" inert>
         {uwrStageSteps.map((step, index) => <StoryTrigger key={step.id} step={step}
           ref={element => { triggerRefs.current[index] = element }} />)}
       </div>
       <StoryTranscript enabled={enhanced} />
-      <StoryLinear enabled={!enhanced} />
+      <StoryLinear enabled={!enhanced} activeStep={activeStep} onSelect={id => {
+        setScrollStepId(id)
+        setScrollActiveId(id)
+        setHoveredId(null)
+      }} />
     </section>
   )
 }

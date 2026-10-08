@@ -21,7 +21,7 @@ export function ExplainerStage({ step, activeId, hoveredId, enhanced, onHoverCha
     <div className="explainerStage__copy" aria-hidden="true">
       <StoryCopy key={step.id} state={step} decorative />
     </div>
-    {explored && <div className="stageExploration" aria-hidden="true">
+    {explored && <div className="stageExploration" aria-hidden={enhanced} aria-live={enhanced ? undefined : 'polite'}>
       <strong>{explored.label}</strong><p>{explored.description}</p>
     </div>}
   </div>
