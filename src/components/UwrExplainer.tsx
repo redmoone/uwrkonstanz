@@ -41,10 +41,14 @@ export function UwrExplainer() {
     if (window.matchMedia('(max-width: 767px)').matches) {
       const story = storyRef.current
       if (!story) return
+      const introduction = story.previousElementSibling
+      const conclusion = story.nextElementSibling
+      const stage = story.querySelector<HTMLElement>('.explainerStage')
       let selectedIndex = 0
       let timer: ReturnType<typeof setTimeout> | undefined
-      let touchStartY: number | null = null
-      let swipeDistance = 0
+      let gesture: { x: number; y: number; panel: Element; consumed: boolean } | null = null
+      let transitionTarget: number | null = null
+      let transitionDeadline = 0
       const select = (index: number) => {
         selectedIndex = index
         const step = uwrStageSteps[index]
@@ -56,60 +60,117 @@ export function UwrExplainer() {
         const trigger = triggerRefs.current[selectedIndex]
         if (trigger) window.scrollTo({ top: window.scrollY + trigger.getBoundingClientRect().top + 2, behavior: 'instant' })
       }
+      const transitionTo = (top: number) => {
+        transitionTarget = Math.max(0, Math.min(top, document.documentElement.scrollHeight - window.innerHeight))
+        transitionDeadline = performance.now() + 1500
+        window.scrollTo({ top: transitionTarget, behavior: 'smooth' })
+      }
+      const navigate = (panel: Element, direction: number) => {
+        const rect = story.getBoundingClientRect()
+        const stageHeight = stage?.getBoundingClientRect().height ?? window.innerHeight
+        if (panel === introduction) {
+          select(0)
+          transitionTo(window.scrollY + rect.top + 2)
+          return
+        }
+        if (panel === conclusion) {
+          select(uwrStageSteps.length - 1)
+          transitionTo(window.scrollY + rect.bottom - stageHeight)
+          return
+        }
+        // Settle a partly visible panel reached via a link or interrupted flight.
+        if (rect.top > 2 || rect.bottom < stageHeight - 2) {
+          if (rect.top > 2) {
+            if (direction > 0) { select(0); transitionTo(window.scrollY + rect.top + 2) }
+            else if (introduction) transitionTo(window.scrollY + introduction.getBoundingClientRect().top)
+          } else {
+            if (direction < 0) {
+              select(uwrStageSteps.length - 1)
+              transitionTo(window.scrollY + rect.bottom - stageHeight)
+            } else if (conclusion) transitionTo(window.scrollY + conclusion.getBoundingClientRect().top)
+          }
+          return
+        }
+        const nextIndex = selectedIndex + direction
+        if (nextIndex < 0) {
+          if (introduction) transitionTo(window.scrollY + introduction.getBoundingClientRect().top)
+        } else if (nextIndex >= uwrStageSteps.length) {
+          if (!conclusion) return
+          // Skip the invisible remaining driver distance before sliding to the CTA.
+          window.scrollTo({ top: window.scrollY + rect.bottom - stageHeight, behavior: 'instant' })
+          transitionTo(window.scrollY + conclusion.getBoundingClientRect().top)
+        } else {
+          select(nextIndex)
+          align()
+        }
+      }
       const selectSettledStep = () => {
-        if (touchStartY !== null) return
+        if (gesture) return
+        if (transitionTarget !== null) {
+          if (Math.abs(window.scrollY - transitionTarget) > 2 && performance.now() < transitionDeadline) return
+          transitionTarget = null
+        }
         let candidate = 0
         triggerRefs.current.forEach((trigger, index) => {
           if (trigger && trigger.getBoundingClientRect().top <= 2) candidate = index
         })
         if (candidate === selectedIndex) return
-        // Native momentum when entering the stage must not skip chapters either.
-        select(selectedIndex + Math.sign(candidate - selectedIndex))
-        align()
+        select(candidate)
       }
       const settle = () => {
         clearTimeout(timer)
         timer = setTimeout(selectSettledStep, 180)
       }
       const touchStart = (event: TouchEvent) => {
-        const rect = story.getBoundingClientRect()
-        if (event.touches.length !== 1 || rect.top > 2 || rect.bottom < window.innerHeight - 2) return
+        gesture = null
+        if (event.touches.length !== 1 || !(event.target instanceof Node)) return
+        const panel = [introduction, story, conclusion].find(panel => panel?.contains(event.target as Node))
+        if (!panel) return
         clearTimeout(timer)
-        touchStartY = event.touches[0].clientY
-        swipeDistance = 0
+        // A fresh swipe may reverse an unfinished panel transition immediately.
+        if (transitionTarget !== null) {
+          window.scrollTo({ top: window.scrollY, behavior: 'instant' })
+          transitionTarget = null
+        }
+        gesture = { x: event.touches[0].clientX, y: event.touches[0].clientY, panel, consumed: false }
       }
       const touchMove = (event: TouchEvent) => {
-        if (touchStartY === null) return
-        if (event.touches.length !== 1) { touchStartY = null; return }
-        swipeDistance = touchStartY - event.touches[0].clientY
-        // At the endpoints, allow the page to leave the story naturally.
-        if ((selectedIndex === 0 && swipeDistance < 0)
-          || (selectedIndex === uwrStageSteps.length - 1 && swipeDistance > 0)) {
-          touchStartY = null
+        if (!gesture) return
+        if (event.touches.length !== 1) { gesture = null; return }
+        if (gesture.consumed) { if (event.cancelable) event.preventDefault(); return }
+        const deltaY = gesture.y - event.touches[0].clientY
+        const deltaX = gesture.x - event.touches[0].clientX
+        if (Math.abs(deltaX) > Math.abs(deltaY)) { gesture = null; return }
+        // The outer directions keep native scrolling, including footer access.
+        if ((gesture.panel === introduction && deltaY < 0)
+          || (gesture.panel === conclusion && deltaY > 0)) {
+          gesture = null
           return
         }
-        if (event.cancelable) event.preventDefault()
+        if (!event.cancelable) { gesture = null; return }
+        event.preventDefault()
+        // Start during the swipe, then absorb the remainder and its momentum.
+        if (Math.abs(deltaY) < 24) return
+        gesture.consumed = true
+        navigate(gesture.panel, Math.sign(deltaY))
       }
       const touchEnd = () => {
-        if (touchStartY === null) return
-        touchStartY = null
-        if (Math.abs(swipeDistance) < 50) return
-        select(Math.max(0, Math.min(uwrStageSteps.length - 1, selectedIndex + Math.sign(swipeDistance))))
-        align()
+        gesture = null
+        settle()
       }
-      const touchCancel = () => { touchStartY = null; swipeDistance = 0 }
-      story.addEventListener('touchstart', touchStart, { passive: true })
-      story.addEventListener('touchmove', touchMove, { passive: false })
-      story.addEventListener('touchend', touchEnd)
-      story.addEventListener('touchcancel', touchCancel)
+      selectSettledStep()
+      window.addEventListener('touchstart', touchStart, { passive: true })
+      window.addEventListener('touchmove', touchMove, { passive: false })
+      window.addEventListener('touchend', touchEnd)
+      window.addEventListener('touchcancel', touchEnd)
       window.addEventListener('scroll', settle, { passive: true })
       return () => {
         clearTimeout(timer)
         window.removeEventListener('scroll', settle)
-        story.removeEventListener('touchstart', touchStart)
-        story.removeEventListener('touchmove', touchMove)
-        story.removeEventListener('touchend', touchEnd)
-        story.removeEventListener('touchcancel', touchCancel)
+        window.removeEventListener('touchstart', touchStart)
+        window.removeEventListener('touchmove', touchMove)
+        window.removeEventListener('touchend', touchEnd)
+        window.removeEventListener('touchcancel', touchEnd)
       }
     }
     let observer: IntersectionObserver
