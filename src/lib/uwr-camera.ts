@@ -3,10 +3,10 @@ import type { Camera, StoryHotspot } from './uwr-stage'
 export type PhotoBounds = { left: number; right: number; top: number; bottom: number }
 
 // Fit every tap target into the phone's visible crop, including its physical size.
-export function fitHotspotCamera(target: Camera, points: Pick<StoryHotspot, 'x' | 'y'>[], bounds: PhotoBounds,
+export function fitHotspotCamera(target: Camera, points: Pick<StoryHotspot, 'x' | 'y' | 'hitSize'>[], bounds: PhotoBounds,
   baseScale: number, image: { width: number; height: number }): Camera {
   if (!points.length) return target
-  const margin = 24 / Math.max(.01, baseScale)
+  const margin = Math.max(24, ...points.map(point => (point.hitSize ?? 44) / 2 + 2)) / Math.max(.01, baseScale)
   const minX = Math.min(...points.map(point => point.x)), maxX = Math.max(...points.map(point => point.x))
   const minY = Math.min(...points.map(point => point.y)), maxY = Math.max(...points.map(point => point.y))
   const zoom = Math.max(1, Math.min(target.zoom,

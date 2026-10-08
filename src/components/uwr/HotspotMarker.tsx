@@ -1,13 +1,13 @@
 import type { StoryHotspot } from '@/lib/uwr-stage'
 
-type Props = { hotspot: StoryHotspot; scale: number; active: boolean; expanded: boolean; trace: boolean; onHoverChange: (id: string | null) => void; onActivate: (id: string) => void; describedBy: string }
+type Props = { hotspot: StoryHotspot; hitSize: number; scale: number; active: boolean; expanded: boolean; trace: boolean; onHoverChange: (id: string | null) => void; onActivate: (id: string) => void; describedBy: string }
 
-export function HotspotMarker({ hotspot, scale, active, expanded, trace, onHoverChange, onActivate, describedBy }: Props) {
-  const size = 44 / scale
+export function HotspotMarker({ hotspot, hitSize, scale, active, expanded, trace, onHoverChange, onActivate, describedBy }: Props) {
+  const size = hitSize / scale
   return (
     <foreignObject x={hotspot.x - size / 2} y={hotspot.y - size / 2} width={size} height={size} style={{ pointerEvents: 'none' }}>
       <button className="hotspot-marker" type="button" data-hotspot-id={hotspot.id} data-active={active || trace}
-        style={{ transform: `scale(${1 / scale})`, transformOrigin: 'top left' }}
+        style={{ width: hitSize, height: hitSize, transform: `scale(${1 / scale})`, transformOrigin: 'top left' }}
         aria-label={`${hotspot.label}: Erklärung öffnen`} aria-haspopup="dialog" aria-expanded={expanded} aria-describedby={describedBy}
         onPointerEnter={event => { if (event.pointerType === 'mouse' && window.matchMedia('(min-width: 768px)').matches) onHoverChange(hotspot.id) }}
         onPointerLeave={event => { if (event.pointerType === 'mouse') onHoverChange(null) }}

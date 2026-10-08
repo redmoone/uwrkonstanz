@@ -43,15 +43,16 @@ function assertAllTargetsFit(camera, frame, context) {
   for (const point of uwrHotspots) {
     const x = point.x * camera.zoom + camera.x
     const y = point.y * camera.zoom + camera.y
-    // The compensated buttons stay 44 CSS pixels wide at every zoom.
+    // Compensated targets retain their physical size at every zoom.
+    const radius = (point.hitSize ?? 44) / 2
     const clearances = [
-      (x - bounds.left) * baseScale - 22,
-      (bounds.right - x) * baseScale - 22,
-      (y - bounds.top) * baseScale - 22,
-      (bounds.bottom - y) * baseScale - 22,
+      (x - bounds.left) * baseScale - radius,
+      (bounds.right - x) * baseScale - radius,
+      (y - bounds.top) * baseScale - radius,
+      (bounds.bottom - y) * baseScale - radius,
     ]
     assert.ok(clearances.every(value => value >= 2 - tolerance),
-      `${context}: ${point.id} clips its 44px target: ${clearances.join(', ')}`)
+      `${context}: ${point.id} clips its ${point.hitSize ?? 44}px target: ${clearances.join(', ')}`)
   }
   assert.ok(camera.x <= bounds.left + tolerance && camera.x + image.width * camera.zoom >= bounds.right - tolerance,
     `${context}: horizontal blank photo edge`)
@@ -60,7 +61,7 @@ function assertAllTargetsFit(camera, frame, context) {
 }
 
 for (const [width, height] of [[320, 568], [390, 844]]) {
-  test(`keeps all eight 44px targets inside the ${width}x${height} mobile crop for every chapter`, () => {
+  test(`keeps all eight targets, including the larger ball, inside the ${width}x${height} mobile crop for every chapter`, () => {
     const frame = visiblePhoto(width, height)
     assert.equal(uwrHotspots.length, 8)
     for (const step of uwrStageSteps) {

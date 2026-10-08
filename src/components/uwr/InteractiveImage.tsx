@@ -68,7 +68,7 @@ export function InteractiveImage({ image, hotspots, activeId, camera: target, mo
   useEffect(() => {
     const targetCamera = isMobile && mobileCamera ? mobileCamera : target
     const points = hotspots
-    const margin = 24 / Math.max(.01, baseScale)
+    const margin = Math.max(24, ...points.map(point => (point.hitSize ?? 44) / 2 + 2)) / Math.max(.01, baseScale)
     const minX = Math.min(...points.map(point => point.x))
     const maxX = Math.max(...points.map(point => point.x))
     const minY = Math.min(...points.map(point => point.y))
@@ -144,7 +144,7 @@ export function InteractiveImage({ image, hotspots, activeId, camera: target, mo
         <image href={image.src} x="0" y="0" width={image.width} height={image.height}
           preserveAspectRatio="none" mask={`url(#${imageId}-photo-fade)`} role="img" aria-label={image.alt} />
         <OutlineOverlay hotspots={hotspots} activeId={activeId} trace={trace} scale={scale} />
-        {hotspots.map(point => <HotspotMarker key={point.id} hotspot={point} scale={scale}
+        {hotspots.map(point => <HotspotMarker key={point.id} hotspot={point} hitSize={animateCamera ? point.hitSize ?? 44 : 44} scale={scale}
           active={isHotspotActive(point, activeId)} expanded={selectedId === point.id} trace={trace}
           onHoverChange={onHoverChange} onActivate={onActivate} describedBy={`${imageId}-${point.id}`} />)}
         {trace && <g className="hotspot-debug" aria-hidden="true" style={{ fontSize: `${11 / scale}px` }}>

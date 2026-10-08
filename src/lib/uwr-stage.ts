@@ -7,6 +7,7 @@ export type StoryHotspot = {
   x: number
   y: number
   label: string
+  hitSize?: number
   description: string
   groupId?: 'ausruestung'
   outlinePath?: string

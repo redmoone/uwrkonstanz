@@ -278,6 +278,7 @@ img { object-fit: cover; }
 @media (max-width: 767px) {
   .hotspot-dialog__panel { padding: 24px; }
   .uwr-page .hotspot-marker__ring { width: 26px; height: 26px; border-width: 2px; background: rgba(3,39,63,.75); opacity: 1; }
+  .uwr-page .hotspot-marker[data-hotspot-id="ball"] .hotspot-marker__ring { width: 32px; height: 32px; }
   .uwr-page .hotspot-marker__ring > span { width: 6px; height: 6px; }
 }
 @media (prefers-reduced-motion: reduce) {

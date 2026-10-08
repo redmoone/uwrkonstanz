@@ -8,7 +8,7 @@ export const DEBUG_HOTSPOTS = false
 // Native coordinates of the supplied 1536 × 1024 photograph and SVGs.
 // Each equipment contour remains independent within the explicit ABC group.
 export const uwrHotspots: StoryHotspot[] = [
-  { id: 'ball', x: 915, y: 662, label: 'Ball', description: uwrCopy.ball[0], outlinePath: uwrOutlinePaths.ball },
+  { id: 'ball', x: 915, y: 662, label: 'Ball', hitSize: 64, description: uwrCopy.ball[0], outlinePath: uwrOutlinePaths.ball },
   { id: 'korb', x: 450, y: 694, label: 'Korb', description: uwrCopy.korb[0], outlinePath: uwrOutlinePaths.korb },
   { id: 'deckel', x: 465, y: 558, label: 'Deckel', description: uwrCopy.deckel[0], outlinePath: uwrOutlinePaths.deckel },
   { id: 'dackel', x: 641, y: 683, label: 'Untertor / Dackel', description: uwrCopy.dackel[0], outlinePath: uwrOutlinePaths.dackel },
