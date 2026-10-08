@@ -11,6 +11,8 @@ type Props = {
   hotspots: StoryHotspot[]
   activeId: string | null
   camera: Camera
+  mobileCamera?: Camera
+  cameraFocusId?: string
   animateCamera: boolean
   onHoverChange: (id: string | null) => void
 }
@@ -22,12 +24,14 @@ const edgeStops = (width: number) => [
   ...edgeOpacity.map((opacity, index) => ({ offset: `${100 - index * width / 4}%`, opacity })).reverse(),
 ]
 
-export function InteractiveImage({ image, hotspots, activeId, camera: target, animateCamera, onHoverChange }: Props) {
+export function InteractiveImage({ image, hotspots, activeId, camera: target, mobileCamera, cameraFocusId, animateCamera, onHoverChange }: Props) {
   const svgRef = useRef<SVGSVGElement>(null)
   const cameraRef = useRef<SVGGElement>(null)
   const currentCamera = useRef(restingCamera)
   const [camera, setCamera] = useState(restingCamera)
   const [baseScale, setBaseScale] = useState(1)
+  const [isMobile, setIsMobile] = useState(false)
+  const [visibleFrame, setVisibleFrame] = useState<{ left: number; right: number; top: number; bottom: number } | null>(null)
   const [trace, setTrace] = useState(DEBUG_HOTSPOTS)
   const [tracePoint, setTracePoint] = useState<{ x: number; y: number } | null>(null)
   const imageId = `story-image-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
@@ -37,7 +41,22 @@ export function InteractiveImage({ image, hotspots, activeId, camera: target, an
     setTrace(DEBUG_HOTSPOTS || new URLSearchParams(window.location.search).get('trace') === '1')
     const svg = svgRef.current
     if (!svg) return
-    const update = () => setBaseScale(svg.getScreenCTM()?.a || 1)
+    const update = () => {
+      const matrix = svg.getScreenCTM()
+      setBaseScale(matrix?.a || 1)
+      setIsMobile(window.matchMedia('(max-width: 767px)').matches)
+      if (!matrix) return
+      const rect = svg.getBoundingClientRect()
+      const frame = svg.parentElement?.getBoundingClientRect() ?? rect
+      // The phone clips the 150%-wide SVG: constrain the focused markers to
+      // the actual visible photo rather than the offscreen SVG edges.
+      setVisibleFrame({
+        left: (Math.max(rect.left, frame.left) - matrix.e) / matrix.a,
+        right: (Math.min(rect.right, frame.right) - matrix.e) / matrix.a,
+        top: (Math.max(rect.top, frame.top) - matrix.f) / matrix.d,
+        bottom: (Math.min(rect.bottom, frame.bottom) - matrix.f) / matrix.d,
+      })
+    }
     update()
     const observer = new ResizeObserver(update)
     observer.observe(svg)
@@ -45,19 +64,22 @@ export function InteractiveImage({ image, hotspots, activeId, camera: target, an
   }, [])
 
   useEffect(() => {
-    // Keep every 44px target inside the photographed viewBox, even while
-    // zoomed. Otherwise the high snorkel marker could leave the camera frame.
+    const targetCamera = isMobile && mobileCamera ? mobileCamera : target
+    const focused = isMobile && cameraFocusId
+      ? hotspots.filter(point => isHotspotActive(point, cameraFocusId)) : hotspots
+    const points = focused.length ? focused : hotspots
     const margin = 24 / Math.max(.01, baseScale)
-    const minX = Math.min(...hotspots.map(point => point.x))
-    const maxX = Math.max(...hotspots.map(point => point.x))
-    const minY = Math.min(...hotspots.map(point => point.y))
-    const maxY = Math.max(...hotspots.map(point => point.y))
+    const minX = Math.min(...points.map(point => point.x))
+    const maxX = Math.max(...points.map(point => point.x))
+    const minY = Math.min(...points.map(point => point.y))
+    const maxY = Math.max(...points.map(point => point.y))
+    const viewBounds = isMobile && visibleFrame ? visibleFrame : { left: 0, right: image.width, top: 0, bottom: image.height }
     const destination = animateCamera ? {
-      zoom: target.zoom,
-      x: Math.min(0, image.width - margin - maxX * target.zoom,
-        Math.max(image.width * (1 - target.zoom), margin - minX * target.zoom, target.x)),
-      y: Math.min(0, image.height - margin - maxY * target.zoom,
-        Math.max(image.height * (1 - target.zoom), margin - minY * target.zoom, target.y)),
+      zoom: targetCamera.zoom,
+      x: Math.min(0, viewBounds.right - margin - maxX * targetCamera.zoom,
+        Math.max(image.width * (1 - targetCamera.zoom), viewBounds.left + margin - minX * targetCamera.zoom, targetCamera.x)),
+      y: Math.min(0, viewBounds.bottom - margin - maxY * targetCamera.zoom,
+        Math.max(image.height * (1 - targetCamera.zoom), viewBounds.top + margin - minY * targetCamera.zoom, targetCamera.y)),
     } : restingCamera
     if (!animateCamera || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       currentCamera.current = destination
@@ -81,7 +103,7 @@ export function InteractiveImage({ image, hotspots, activeId, camera: target, an
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [target, animateCamera, baseScale, hotspots, image.width, image.height])
+  }, [target, mobileCamera, cameraFocusId, isMobile, visibleFrame, animateCamera, baseScale, hotspots, image.width, image.height])
 
   return <figure className="interactive-image">
     <svg ref={svgRef} className="interactive-image__svg" viewBox={`0 0 ${image.width} ${image.height}`}

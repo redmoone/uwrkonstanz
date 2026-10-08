@@ -16,7 +16,7 @@ export function ExplainerStage({ step, activeId, hoveredId, enhanced, onHoverCha
   const explored = uwrHotspots.find(point => point.id === hoveredId)
   return <div className="explainerStage">
     <InteractiveImage image={uwrScenes.positions} hotspots={uwrHotspots} activeId={activeId}
-      camera={step.camera} animateCamera={enhanced} onHoverChange={onHoverChange} />
+      camera={step.camera} mobileCamera={step.mobileCamera} cameraFocusId={step.id} animateCamera={enhanced} onHoverChange={onHoverChange} />
     <div className="explainerStage__shade" aria-hidden="true" />
     <div className="explainerStage__copy" aria-hidden="true">
       <StoryCopy key={step.id} state={step} decorative />
