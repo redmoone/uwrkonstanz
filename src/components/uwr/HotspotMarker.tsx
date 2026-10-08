@@ -1,14 +1,14 @@
 import { DEBUG_HOTSPOTS } from '@/lib/uwr-hotspots'
-import type { StoryHotspot } from '@/lib/uwr-story'
+import type { StoryHotspot } from '@/lib/uwr-stage'
 
-type Props = { hotspot: StoryHotspot; scale: number; active: boolean; onHoverChange: (id: string | null) => void; describedBy: string }
+type Props = { hotspot: StoryHotspot; scale: number; active: boolean; trace: boolean; onHoverChange: (id: string | null) => void; describedBy: string }
 
-export function HotspotMarker({ hotspot, scale, active, onHoverChange, describedBy }: Props) {
+export function HotspotMarker({ hotspot, scale, active, trace, onHoverChange, describedBy }: Props) {
   // Compensate only the button's physical size. Its center stays in image pixels.
-  const size = 48 / scale
+  const size = 44 / scale
   return (
-    <foreignObject x={hotspot.x - size / 2} y={hotspot.y - size / 2} width={size} height={size}>
-      <button className="hotspot-marker" type="button" data-hotspot-id={hotspot.id} data-active={active || DEBUG_HOTSPOTS}
+    <foreignObject x={hotspot.x - size / 2} y={hotspot.y - size / 2} width={size} height={size} style={{ pointerEvents: 'none' }}>
+      <button className="hotspot-marker" type="button" data-hotspot-id={hotspot.id} data-active={active || trace}
         style={{ transform: `scale(${1 / scale})`, transformOrigin: 'top left' }}
         aria-label={`${hotspot.label} im Foto hervorheben`} aria-pressed={active} aria-describedby={describedBy}
         onMouseEnter={() => onHoverChange(hotspot.id)} onMouseLeave={() => onHoverChange(null)}

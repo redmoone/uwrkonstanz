@@ -5,16 +5,16 @@ import { ExplainerStage } from './uwr/ExplainerStage'
 import { StoryLinear } from './uwr/StoryLinear'
 import { StoryTrigger } from './uwr/StoryTrigger'
 import { StoryTranscript } from './uwr/StoryTranscript'
-import { uwrStoryStates, uwrStoryTriggers } from '@/lib/uwr-story'
+import { uwrStageSteps } from '@/lib/uwr-stage'
 
 export function UwrExplainer() {
   const [enhanced, setEnhanced] = useState(false)
-  const [scrollStepId, setScrollStepId] = useState(uwrStoryTriggers[0].id)
-  const [scrollActiveId, setScrollActiveId] = useState<string | null>(uwrStoryTriggers[0].hotspotId ?? null)
+  const [scrollStepId, setScrollStepId] = useState(uwrStageSteps[0].id)
+  const [scrollActiveId, setScrollActiveId] = useState<string | null>(uwrStageSteps[0].id)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const triggerRefs = useRef<(HTMLDivElement | null)[]>([])
   const storyRef = useRef<HTMLElement>(null)
-  const activeStep = uwrStoryTriggers.find(step => step.id === scrollStepId) ?? uwrStoryTriggers[0]
+  const activeStep = uwrStageSteps.find(step => step.id === scrollStepId) ?? uwrStageSteps[0]
   const activeId = hoveredId ?? scrollActiveId
 
   useEffect(() => {
@@ -22,7 +22,10 @@ export function UwrExplainer() {
     const desktop = window.matchMedia('(min-width: 768px) and (min-height: 600px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/2)')
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
     const update = () => {
-      setEnhanced(desktop.matches && !reduced.matches && 'IntersectionObserver' in window)
+      const nextEnhanced = desktop.matches && !reduced.matches && 'IntersectionObserver' in window
+      setEnhanced(nextEnhanced)
+      setScrollStepId(uwrStageSteps[0].id)
+      setScrollActiveId(nextEnhanced ? uwrStageSteps[0].id : null)
       setHoveredId(null)
     }
     update()
@@ -35,16 +38,16 @@ export function UwrExplainer() {
     if (!enhanced) return
     let observer: IntersectionObserver
     const select = (index: number) => {
-      const step = uwrStoryTriggers[index]
+      const step = uwrStageSteps[index]
       setScrollStepId(step.id)
-      setScrollActiveId(step.hotspotId ?? null)
+      setScrollActiveId(step.id)
       setHoveredId(null)
     }
     const clamp = () => {
       const rect = storyRef.current?.getBoundingClientRect()
       if (!rect) return
       if (rect.top > 0) select(0)
-      else if (rect.bottom <= window.innerHeight) select(uwrStoryTriggers.length - 1)
+      else if (rect.bottom <= window.innerHeight) select(uwrStageSteps.length - 1)
     }
     const update = () => {
       // Top two-pixel band: every trigger owns its full scroll interval.
@@ -75,16 +78,16 @@ export function UwrExplainer() {
 
   return (
     <section ref={storyRef} id="uwr-ball" className="explainerStory" aria-label="Unterwasserrugby entdecken"
-      data-enhanced={enhanced} data-state={activeStep.stateId} data-step={activeStep.id}
+      data-enhanced={enhanced} data-state={activeStep.id} data-step={activeStep.id}
       data-scroll-active-id={scrollActiveId ?? ''} data-active-id={activeId ?? ''} data-hovered-id={hoveredId ?? ''}>
-      <ExplainerStage states={uwrStoryStates} step={activeStep} activeId={activeId}
-        enabled={enhanced} onHoverChange={setHoveredId} />
+      <ExplainerStage step={activeStep} activeId={activeId} hoveredId={hoveredId}
+        enhanced={enhanced} onHoverChange={setHoveredId} />
       <div className="scrollDriver" aria-hidden="true" inert>
-        {uwrStoryTriggers.map((step, index) => <StoryTrigger key={step.id} step={step}
+        {uwrStageSteps.map((step, index) => <StoryTrigger key={step.id} step={step}
           ref={element => { triggerRefs.current[index] = element }} />)}
       </div>
       <StoryTranscript enabled={enhanced} />
-      <StoryLinear states={uwrStoryStates} enabled={!enhanced} hoveredId={hoveredId} onHoverChange={setHoveredId} />
+      <StoryLinear enabled={!enhanced} />
     </section>
   )
 }

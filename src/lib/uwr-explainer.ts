@@ -9,10 +9,10 @@ export const uwrScenes = {
     alt: 'Unterwasserrugby am Korb: ein Stürmer mit Ball, die Deckel-Spielerin auf dem Korb und die Untertorverteidigung davor',
   },
   positions: {
-    src: '/images/uwr/source/explainer-positions.png',
-    width: 1024,
-    height: 683,
-    alt: 'Unterwasserrugby aus einer zweiten Perspektive: Deckel-Spielerin auf dem Korb links, Untertorverteidigung davor und ein Stürmer mit Ball rechts',
+    src: '/images/uwr/source/explainer-positions-upscaled.png',
+    width: 1536,
+    height: 1024,
+    alt: 'Unterwasserrugby: Deckel-Spielerin auf dem Korb links, Untertorverteidigung davor und der kopfüber schwimmende Stürmer in der Mitte',
   },
 } satisfies Record<SceneId, { src: string; width: number; height: number; alt: string }>
 
@@ -68,8 +68,7 @@ export const uwrCopy = {
     'Auf dem Foto siehst du die Untertorverteidigung direkt am Boden vor dem Korb. Gemeinsam halten Deckel und Dackel den Weg zum Tor geschlossen.',
   ],
   stuermer: [
-    'Stürmer bringen den Ball nach vorne, suchen freie Räume und setzen die Verteidigung unter Druck. Ein Pass oder ein Richtungswechsel kann eine neue Lücke öffnen.',
-    'Rechts im Bild greift der Spieler mit dem Ball den Korb an. Die Rollen bleiben beweglich: Auch die Verteidigung kann sich am Angriff beteiligen.',
+    'Der Stürmer sucht Räume, bindet Angreifer, bringt den Ball vom eigenen Korb weg und startet den Angriff. Dabei geht es nicht nur um Kraft – Timing, Übersicht und das Zusammenspiel mit den Mitspielern sind entscheidend.',
   ],
   ausprobieren: [
     'Jetzt kennst du das Spiel. Wie sich die Bewegung unter Wasser und das Zusammenspiel wirklich anfühlen, erlebst du am besten selbst.',

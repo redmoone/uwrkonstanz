@@ -1,14 +1,10 @@
 import { StoryCopy } from './StoryCopy'
-import { uwrStoryStates, uwrStoryTriggers } from '@/lib/uwr-story'
+import { uwrCopy } from '@/lib/uwr-explainer'
+import { uwrStageSteps } from '@/lib/uwr-stage'
 
-// All copy remains available to assistive technology, independent of scrolling.
-// No off-screen interactive controls or duplicate mobile reading order.
+// Full source copy is accessible without timing or scrolling.
 export function StoryTranscript({ enabled }: { enabled: boolean }) {
   return <div className="sr-only" aria-hidden={!enabled} inert={!enabled}>
-    {uwrStoryStates.map(state => <div key={state.id}>
-      <StoryCopy state={state} />
-      {uwrStoryTriggers.filter(step => step.stateId === state.id && step.label).map(step =>
-        <div key={step.id}><h3>{step.label}</h3><p>{step.text}</p></div>)}
-    </div>)}
+    {uwrStageSteps.map(step => <StoryCopy key={step.id} state={{ ...step, paragraphs: uwrCopy[step.id] }} />)}
   </div>
 }

@@ -1,17 +1,12 @@
-import { InteractiveImage } from './InteractiveImage'
 import { StoryCopy } from './StoryCopy'
-import { uwrStoryTriggers, type StoryStateData } from '@/lib/uwr-story'
+import { uwrCopy } from '@/lib/uwr-explainer'
+import { uwrStageSteps } from '@/lib/uwr-stage'
 
-type Props = { states: StoryStateData[]; enabled: boolean; hoveredId: string | null; onHoverChange: (id: string | null) => void }
-
-export function StoryLinear({ states, enabled, hoveredId, onHoverChange }: Props) {
+// One photograph above, followed by compact source copy. No duplicated scenes.
+export function StoryLinear({ enabled }: { enabled: boolean }) {
   return <div className="storyLinear" aria-hidden={!enabled} inert={!enabled}>
-    {states.map(state => <article key={state.id} className="storyLinear__state">
-      <InteractiveImage image={state.image} hotspots={state.hotspots} activeId={hoveredId}
-        onHoverChange={onHoverChange} caption={state.image.alt} />
-      <StoryCopy state={state} />
-      {uwrStoryTriggers.filter(step => step.stateId === state.id && step.label).map(step =>
-        <div key={step.id} className="storyLinear__detail"><h3>{step.label}</h3><p>{step.text}</p></div>)}
+    {uwrStageSteps.map(step => <article key={step.id} className="storyLinear__state">
+      <StoryCopy state={{ ...step, paragraphs: uwrCopy[step.id] }} />
     </article>)}
   </div>
 }
