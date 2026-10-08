@@ -23,6 +23,6 @@ Inspect: `systemctl status uwrkonstanz` and `journalctl -u uwrkonstanz -n 100`.
 
 Payload runs committed production migrations on initialization. After changing collections or fields, run `pnpm migrate:create meaningful-name`, review and commit the generated migration files. Never run development schema push against production. A failed health check restores the previous application release; schema changes require separate recovery from the saved SQLite backup.
 
-The first deployment starts with a new production database. The setup creates random credentials in `/srv/uwrkonstanz/shared/initial-admin.txt`; the application listens on loopback until the deployment registers this first administrator. Local development data and logins are not automatically published. Change the temporary administrator email and password after signing in.
+The first deployment starts with a new production database and listens on loopback until its owner registers the initial administrator. Use `ssh -L 3301:127.0.0.1:3000 root@78.141.212.242`, open `http://localhost:3301/admin`, and create the administrator yourself. Deploy again to publish on port 3000. Local development data and logins are not automatically published.
 
 This IP/port endpoint uses HTTP. Use a domain and HTTPS before using the CMS for normal administration. The existing Ubuntu 20.10 installation also needs a separately planned upgrade to a supported release.

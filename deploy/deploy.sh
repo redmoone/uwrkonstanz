@@ -26,8 +26,8 @@ previous=$(readlink -f "$base/current" || true)
 ln -s "$target" "$base/current.next"
 mv -Tf "$base/current.next" "$base/current"
 sudo /bin/systemctl restart uwrkonstanz.service
-if [[ -f "$base/shared/bootstrap-user.json" ]]; then
-  # The first boot listens on loopback until its administrator is registered.
+if grep -q '^HOSTNAME=127.0.0.1$' "$base/shared/app.env"; then
+  # The first boot stays private until the owner registers an administrator.
   ready=false
   for attempt in {1..30}; do
     if curl --fail --silent --max-time 5 http://127.0.0.1:3000/api/users/init > "$base/incoming/users-init.json"; then
@@ -37,14 +37,13 @@ if [[ -f "$base/shared/bootstrap-user.json" ]]; then
     sleep 2
   done
   [[ "$ready" == true ]] || { echo 'CMS bootstrap failed to start'; exit 1; }
-  if ! python3 -c 'import json,sys; sys.exit(0 if json.load(open(sys.argv[1])).get("initialized") else 1)' "$base/incoming/users-init.json"; then
-    curl --fail --silent --max-time 30 -H 'Content-Type: application/json' \
-      --data-binary "@$base/shared/bootstrap-user.json" \
-      http://127.0.0.1:3000/api/users/first-register > /dev/null
+  if python3 -c 'import json,sys; sys.exit(0 if json.load(open(sys.argv[1])).get("initialized") else 1)' "$base/incoming/users-init.json"; then
+    sed -i 's/^HOSTNAME=127.0.0.1$/HOSTNAME=0.0.0.0/' "$base/shared/app.env"
+    sudo /bin/systemctl restart uwrkonstanz.service
+  else
+    echo 'First administrator required: use an SSH tunnel to /admin, then deploy again to publish.'
   fi
-  rm -f "$base/shared/bootstrap-user.json" "$base/incoming/users-init.json"
-  sed -i 's/^HOSTNAME=127.0.0.1$/HOSTNAME=0.0.0.0/' "$base/shared/app.env"
-  sudo /bin/systemctl restart uwrkonstanz.service
+  rm -f "$base/incoming/users-init.json"
 fi
 healthy=false
 for attempt in {1..30}; do
