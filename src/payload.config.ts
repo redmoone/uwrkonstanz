@@ -13,6 +13,7 @@ import { TrainingTimes } from '@/collections/TrainingTimes'
 import { TeamMembers } from '@/collections/TeamMembers'
 import { Pages } from '@/collections/Pages'
 import { SiteSettings } from '@/globals/SiteSettings'
+import { migrations } from './migrations'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -27,6 +28,7 @@ export default buildConfig({
   globals: [SiteSettings],
   secret: process.env.PAYLOAD_SECRET || '',
   db: sqliteAdapter({
+    prodMigrations: migrations,
     client: {
       url: process.env.DATABASE_URL || 'file:./data/uwr.db',
     },

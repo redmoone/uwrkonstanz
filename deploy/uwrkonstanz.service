@@ -1,0 +1,23 @@
+[Unit]
+Description=UWR Konstanz Next.js and Payload CMS
+After=network.target
+
+[Service]
+Type=simple
+User=uwrdeploy
+Group=uwrdeploy
+WorkingDirectory=/srv/uwrkonstanz/current
+EnvironmentFile=/srv/uwrkonstanz/shared/app.env
+ExecStart=/opt/uwr-node/bin/node server.js
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/uwrkonstanz
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target

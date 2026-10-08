@@ -1,0 +1,57 @@
+name: Deploy UWR Konstanz
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: uwrkonstanz-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    env:
+      NEXT_PUBLIC_SERVER_URL: ${{ vars.UWR_SERVER_URL || 'http://78.141.212.242:3000' }}
+      DATABASE_URL: file:./data/build.db
+      PAYLOAD_SECRET: ci-build-placeholder-not-a-production-secret
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Package Linux standalone application
+        run: |
+          mkdir -p .next/standalone/.next/static .next/standalone/public
+          cp -a .next/static/. .next/standalone/.next/static/
+          cp -a public/. .next/standalone/public/
+          rm -rf .next/standalone/data .next/standalone/media
+          tar -czf uwrkonstanz.tgz -C .next/standalone .
+      - name: Configure SSH
+        env:
+          DEPLOY_KEY: ${{ secrets.UWR_DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.UWR_DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/uwr_deploy
+          chmod 600 ~/.ssh/uwr_deploy
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Upload and activate release
+        env:
+          DEPLOY_HOST: ${{ vars.UWR_DEPLOY_HOST || '78.141.212.242' }}
+          DEPLOY_USER: ${{ vars.UWR_DEPLOY_USER || 'uwrdeploy' }}
+        run: |
+          scp -i ~/.ssh/uwr_deploy -o BatchMode=yes uwrkonstanz.tgz "$DEPLOY_USER@$DEPLOY_HOST:/srv/uwrkonstanz/incoming/uwrkonstanz.tgz"
+          ssh -i ~/.ssh/uwr_deploy -o BatchMode=yes "$DEPLOY_USER@$DEPLOY_HOST" "/usr/local/bin/uwrkonstanz-deploy '$GITHUB_SHA'"
