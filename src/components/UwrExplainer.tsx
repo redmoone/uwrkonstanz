@@ -39,29 +39,78 @@ export function UwrExplainer() {
   useEffect(() => {
     if (!enhanced) return
     if (window.matchMedia('(max-width: 767px)').matches) {
-      // Let touch momentum settle before starting a new camera flight. A
-      // generous boundary margin avoids toggling when a swipe stops near a step.
+      const story = storyRef.current
+      if (!story) return
       let selectedIndex = 0
       let timer: ReturnType<typeof setTimeout> | undefined
-      const selectSettledStep = () => {
-        const triggers = triggerRefs.current
-        const margin = 80
-        while (selectedIndex < uwrStageSteps.length - 1
-          && (triggers[selectedIndex + 1]?.getBoundingClientRect().top ?? Infinity) < -margin) selectedIndex++
-        while (selectedIndex > 0
-          && (triggers[selectedIndex]?.getBoundingClientRect().top ?? -Infinity) > margin) selectedIndex--
-        const step = uwrStageSteps[selectedIndex]
+      let touchStartY: number | null = null
+      let swipeDistance = 0
+      const select = (index: number) => {
+        selectedIndex = index
+        const step = uwrStageSteps[index]
         setScrollStepId(step.id)
         setScrollActiveId(step.id)
         setHoveredId(null)
+      }
+      const align = () => {
+        const trigger = triggerRefs.current[selectedIndex]
+        if (trigger) window.scrollTo({ top: window.scrollY + trigger.getBoundingClientRect().top + 2, behavior: 'instant' })
+      }
+      const selectSettledStep = () => {
+        if (touchStartY !== null) return
+        let candidate = 0
+        triggerRefs.current.forEach((trigger, index) => {
+          if (trigger && trigger.getBoundingClientRect().top <= 2) candidate = index
+        })
+        if (candidate === selectedIndex) return
+        // Native momentum when entering the stage must not skip chapters either.
+        select(selectedIndex + Math.sign(candidate - selectedIndex))
+        align()
       }
       const settle = () => {
         clearTimeout(timer)
         timer = setTimeout(selectSettledStep, 180)
       }
-      selectSettledStep()
+      const touchStart = (event: TouchEvent) => {
+        const rect = story.getBoundingClientRect()
+        if (event.touches.length !== 1 || rect.top > 2 || rect.bottom < window.innerHeight - 2) return
+        clearTimeout(timer)
+        touchStartY = event.touches[0].clientY
+        swipeDistance = 0
+      }
+      const touchMove = (event: TouchEvent) => {
+        if (touchStartY === null) return
+        if (event.touches.length !== 1) { touchStartY = null; return }
+        swipeDistance = touchStartY - event.touches[0].clientY
+        // At the endpoints, allow the page to leave the story naturally.
+        if ((selectedIndex === 0 && swipeDistance < 0)
+          || (selectedIndex === uwrStageSteps.length - 1 && swipeDistance > 0)) {
+          touchStartY = null
+          return
+        }
+        if (event.cancelable) event.preventDefault()
+      }
+      const touchEnd = () => {
+        if (touchStartY === null) return
+        touchStartY = null
+        if (Math.abs(swipeDistance) < 50) return
+        select(Math.max(0, Math.min(uwrStageSteps.length - 1, selectedIndex + Math.sign(swipeDistance))))
+        align()
+      }
+      const touchCancel = () => { touchStartY = null; swipeDistance = 0 }
+      story.addEventListener('touchstart', touchStart, { passive: true })
+      story.addEventListener('touchmove', touchMove, { passive: false })
+      story.addEventListener('touchend', touchEnd)
+      story.addEventListener('touchcancel', touchCancel)
       window.addEventListener('scroll', settle, { passive: true })
-      return () => { clearTimeout(timer); window.removeEventListener('scroll', settle) }
+      return () => {
+        clearTimeout(timer)
+        window.removeEventListener('scroll', settle)
+        story.removeEventListener('touchstart', touchStart)
+        story.removeEventListener('touchmove', touchMove)
+        story.removeEventListener('touchend', touchEnd)
+        story.removeEventListener('touchcancel', touchCancel)
+      }
     }
     let observer: IntersectionObserver
     const select = (index: number) => {
