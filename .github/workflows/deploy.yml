@@ -56,6 +56,22 @@ jobs:
             cat "$RUNNER_TEMP/uwr-smoke.log"
             exit 1
           fi
+          # Exercise cookie authentication over HTTP without Fetch Metadata.
+          curl --fail --silent -H 'Content-Type: application/json' \
+            --data '{"email":"smoke@example.invalid","password":"ci-only-login-test-password","name":"CI smoke test","role":"admin"}' \
+            http://127.0.0.1:3300/api/users/first-register > /dev/null
+          curl --fail --silent --cookie-jar "$RUNNER_TEMP/uwr-smoke.cookies" \
+            -H 'Content-Type: application/json' \
+            --data '{"email":"smoke@example.invalid","password":"ci-only-login-test-password"}' \
+            http://127.0.0.1:3300/api/users/login > /dev/null
+          curl --fail --silent --cookie "$RUNNER_TEMP/uwr-smoke.cookies" \
+            -H "Referer: $NEXT_PUBLIC_SERVER_URL/admin/login" \
+            http://127.0.0.1:3300/api/users/me | \
+            python3 -c 'import json,sys; assert json.load(sys.stdin)["user"]["email"] == "smoke@example.invalid"'
+          curl --fail --silent --cookie "$RUNNER_TEMP/uwr-smoke.cookies" \
+            -H 'Referer: https://untrusted.example/admin' \
+            http://127.0.0.1:3300/api/users/me | \
+            python3 -c 'import json,sys; assert not json.load(sys.stdin).get("user")'
           kill "$server_pid"
           wait "$server_pid" || true
           trap - EXIT
