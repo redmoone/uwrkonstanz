@@ -29,6 +29,9 @@ importers:
       graphql:
         specifier: ^16.11.0
         version: 16.14.2
+      libsql:
+        specifier: 0.4.7
+        version: 0.4.7
       lucide-react:
         specifier: 0.563.0
         version: 0.563.0(react@19.2.1)

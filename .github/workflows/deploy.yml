@@ -38,6 +38,28 @@ jobs:
           cp -a .next/static/. .next/standalone/.next/static/
           cp -a public/. .next/standalone/public/
           rm -rf .next/standalone/data .next/standalone/media
+          DATABASE_URL="file:$RUNNER_TEMP/uwr-smoke.db" HOSTNAME=127.0.0.1 PORT=3300 \
+            node .next/standalone/server.js > "$RUNNER_TEMP/uwr-smoke.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          healthy=false
+          for attempt in {1..30}; do
+            if curl --fail --silent --max-time 5 http://127.0.0.1:3300/api/users/init > /dev/null && \
+               curl --fail --silent --max-time 5 http://127.0.0.1:3300/ > /dev/null && \
+               curl --fail --silent --max-time 5 http://127.0.0.1:3300/admin > /dev/null; then
+              healthy=true
+              break
+            fi
+            sleep 2
+          done
+          if [ "$healthy" != true ]; then
+            cat "$RUNNER_TEMP/uwr-smoke.log"
+            exit 1
+          fi
+          kill "$server_pid"
+          wait "$server_pid" || true
+          trap - EXIT
+          rm -rf .next/standalone/data .next/standalone/media
           tar -czf uwrkonstanz.tgz -C .next/standalone .
       - name: Configure SSH
         env:
