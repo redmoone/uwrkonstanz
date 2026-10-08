@@ -196,9 +196,14 @@ img { object-fit: cover; }
 .uwr-page .storyLinear__state:last-child { padding-bottom: 64px; }
 .uwr-page .storyLinear .storyCopy h2 { font-size: clamp(34px, 7vw, 64px); }
 .uwr-page .storyLinear .storyCopy > p:not(.kicker) { font-size: 17px; }
-.uwr-page .explainer-cta .join__inner { min-height: 440px; grid-template-columns: minmax(0, 1.4fr) minmax(0, .8fr); gap: 64px; padding-top: 80px; padding-bottom: 80px; }
-.uwr-page .explainer-cta h2 { max-width: 940px; font-size: clamp(44px, 4.6vw, 76px); line-height: .96; }
+.uwr-page .explainer-cta { min-height: 100svh; background: var(--navy); }
+.uwr-page .explainer-cta > img { object-position: center 40%; }
+.uwr-page .explainer-cta__shade { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(3,39,63,.88), rgba(3,39,63,.68) 18%, rgba(3,39,63,.24) 48%, transparent 75%); }
+.uwr-page .explainer-cta__inner { position: relative; z-index: 1; min-height: 100svh; display: flex; align-items: flex-end; padding: clamp(40px, 7svh, 88px) 0; }
+.uwr-page .explainer-cta__copy { max-width: 760px; }
+.uwr-page .explainer-cta h2 { font-size: clamp(44px, 4.6vw, 76px); line-height: .96; }
 .uwr-page .explainer-cta h2 span { color: var(--cyan); }
+.uwr-page .explainer-cta__description { max-width: 520px; margin: 24px 0; font-size: 18px; line-height: 1.6; }
 .uwr-page a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
 @keyframes uwr-stage-reveal { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 
@@ -211,9 +216,10 @@ img { object-fit: cover; }
   .uwr-page .explainer-hero h1 { font-size: clamp(26px, 8.4vw, 64px); }
   .uwr-page .explainer-hero__copy > p:not(.kicker) { margin-top: 22px; font-size: 16px; }
   .uwr-page .explainer-hero__arrow { right: -8px; bottom: 4px; }
-  .uwr-page .explainer-cta .join__inner { display: flex; flex-direction: column; align-items: flex-start; gap: 28px; width: calc(100% - 40px); padding: 64px 0; min-height: 0; }
-  .uwr-page .explainer-cta h2 { font-size: clamp(32px, 8.5vw, 54px); }
-  .uwr-page .explainer-cta .join__inner > div:last-child p { font-size: 17px; }
+  .uwr-page .explainer-cta > img { object-position: 48% center; }
+  .uwr-page .explainer-cta__inner { width: calc(100% - 40px); min-height: max(100svh, 720px); padding: 40px 0; }
+  .uwr-page .explainer-cta h2 { font-size: clamp(28px, 8.5vw, 54px); }
+  .uwr-page .explainer-cta__description { margin: 20px 0; font-size: 17px; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
