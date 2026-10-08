@@ -1,18 +1,34 @@
 # „Was ist UWR?“ – Ein-Bild-Scroll-Bühne
 
 Route: `/unterwasserrugby`. Der bestehende Hero füllt jetzt 100svh; Texte,
-Foto und Gestaltung bleiben erhalten. CTA, Homepage, Navigation, Fonts,
-Farben, Payload und Dependencies bleiben unverändert.
+Foto und Gestaltung bleiben erhalten. Homepage, Navigation, Fonts,
+Farben und Payload bleiben unverändert. Die separat beauftragte Sharp-Korrektur
+vereinheitlicht die direkte Dependency mit Next auf 0.34.5, um den Windows-Ladekonflikt
+zwischen unterschiedlichen nativen Sharp-Versionen zu vermeiden.
 
 ## Architektur
 
 Fullscreen-Hero → beim natürlichen Weiterscrollen direkt eine viewportgroße
-Sticky-Bühne → bestehender Probetraining-CTA. Kein Scroll-Snap oder zusätzlicher
-Übergangsabschnitt; die kleine vorhandene Pfeil-Verknüpfung führt zur Bühne.
+Sticky-Bühne → Fullscreen-Probetraining-Abschluss. Der erste vertikale Scroll-Impuls
+im Desktop-Hero führt sanft und vollständig zur Bühne, die mit dem Ball startet.
+Ein einzelner vertikaler Impuls löst auch die vollständigen Rück- und Weiterfahrten
+aus: Intro ↔ Bühne ↔ Abschluss. Von Ball geht es zurück zum Intro, von Stürmer
+vorwärts zum Abschluss; rückwärts vom Abschluss bleibt Stürmer aktiv.
+Trackpad-Nachlauf unterbricht keine Überfahrt und löst keinen zweiten Wechsel aus.
+Kein Scroll-Snap oder zusätzlicher Übergangsabschnitt; die kleine vorhandene
+Pfeil-Verknüpfung führt ebenfalls zur Bühne.
 Die Bühne enthält genau ein SVG und genau ein Foto:
 `/images/uwr/source/explainer-positions-upscaled.png`, Größe **1536 × 1024**.
 Das vom Nutzer bereitgestellte hochskalierte PNG wird unverändert verwendet.
 Die ältere Bilddatei bleibt erhalten, wird aber nicht mehr von der Bühne geladen.
+
+Der Abschluss „07 / SELBST AUSPROBIEREN“ verwendet das neue Nutzerfoto
+`/images/uwr/source/explainer-dive.png` (1536 × 1024) als Fullscreen-Fläche.
+Die ausgelieferte WebP-Kopie ist ohne Motivänderungen lokal komprimiert
+(ca. 356 kB) und benötigt keine erneute serverseitige Bildoptimierung.
+Headline, Erklärung und Probetraining-Link bleiben erhalten, im ruhigen
+unteren Bildbereich. Auf kleinen Handys wächst die Fläche bei Bedarf über
+eine Bildschirmhöhe hinaus, damit Motiv und Text getrennt bleiben.
 
 Foto, Konturen und alle Marker liegen in derselben SVG-Kameragruppe.
 `matrix(zoom 0 0 zoom x y)` bewegt sie gemeinsam; Zoom 1.1–1.28,
@@ -33,8 +49,13 @@ In der vollständig angehefteten Desktop-Bühne wechselt ein vertikaler
 Mausrad-/Trackpad-Impuls direkt zum nächsten bzw. vorherigen Objekt und startet
 die weiche 750-ms-Kamerafahrt. Ein 800-ms-Übergangsfenster und 180 ms Gestenruhe
 fassen Trackpad-Nachlauf zu einem Schritt zusammen. Am ersten/letzten Objekt
-setzt der Driver an seine Grenze; derselbe Impuls scrollt nativ zum Hero/CTA.
-Außerhalb der Bühne, bei Mobile und Reduced Motion wird das Rad nicht abgefangen.
+startet derselbe Impuls eine vollständige sanfte Fahrt zum Hero/CTA.
+Beim Verlassen des letzten Objekts wird das unsichtbare Restintervall zunächst
+ohne sichtbare Bildänderung übersprungen, damit die Fahrt sofort sichtbar beginnt.
+Während einer Panel-Fahrt werden Folgeimpulse bis zur Ankunft und anschließenden
+Gestenruhe abgefangen; ein frischer Impuls kann sofort zurück navigieren.
+Hero aufwärts, CTA abwärts (zum Footer), andere Seitenbereiche, Mobile und
+Reduced Motion behalten natives Scrollen.
 Browserzoom, horizontale Gesten, Scrollbar und Tastatur bleiben unverändert.
 
 ## Daten und Komponenten
@@ -106,10 +127,14 @@ ViewBox, Kamera-Bildgrenzen und Trace-Raster verwenden die Fotometadaten.
 
 - Konturen bei 1920, 1440, 1024 und 768 px visuell geprüft.
 - Sechs Scrollzustände vorwärts/rückwärts und direkte Scrollsprünge geprüft.
+- Erster Hero-Radimpuls mit Trackpad-Nachlauf landet auf Ball; ein neuer Impuls auf Korb.
+- Alle vier Panel-Wechsel mit einzelnen Radimpulsen und langem Trackpad-Nachlauf geprüft.
 - Alle acht Marker mit echtem Hover und MouseLeave geprüft.
 - Deckel → Hover Stürmer → MouseLeave Deckel; Kamera bleibt dabei gleich.
 - Tastaturfokus/Tab und Escape stellen den Scrollfokus korrekt wieder her.
 - Mobile 320/390 px: ein SVG, kein Sticky/Überlauf; alle Markerzentren erreichbar.
+- Fullscreen-Abschluss bei 1920/1440 px, 1024 × 600 sowie 390/320 px geprüft;
+  Foto bleibt scharf, Text verdeckt den Ball nicht, CTA per Tastatur erreichbar.
 - Touch-PointerDown/Up im mobilen Modus geprüft; Override bleibt nicht hängen.
 - Echte Chrome-Reduced-Motion-Präferenz: lineare Texte, Kamera 1.0, Übergänge 0s.
 - Trace-Klick durch inverse Kameramatrix auf Originalkoordinaten geprüft.

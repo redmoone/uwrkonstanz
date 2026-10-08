@@ -71,21 +71,77 @@ export function UwrExplainer() {
   useEffect(() => {
     const story = storyRef.current
     if (!enhanced || !story) return
+    const introduction = story.previousElementSibling
+    const conclusion = story.nextElementSibling
+    let transitionTarget: number | null = null
+    let transitionDeadline = 0
+    let settlingTransition = false
     let lockedUntil = 0
     let lastWheelAt = -Infinity
+    const transitionTo = (top: number) => {
+      transitionTarget = Math.max(0, Math.min(top, document.documentElement.scrollHeight - window.innerHeight))
+      transitionDeadline = performance.now() + 1500
+      settlingTransition = true
+      window.scrollTo({ top: transitionTarget, behavior: 'smooth' })
+    }
     const wheel = (event: WheelEvent) => {
       if (event.defaultPrevented || !event.cancelable || event.ctrlKey || event.metaKey || event.shiftKey
         || event.deltaY === 0 || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
-      // Observe the gesture outside the stage as well, without cancelling it,
-      // so momentum from the hero does not immediately skip the first object.
+      // Track the entire gesture, including momentum arriving in another panel.
       const now = performance.now()
       const continuingGesture = now - lastWheelAt < 180
       lastWheelAt = now
       const rect = story.getBoundingClientRect()
-      // Only handle the fully pinned stage. Hero, CTA and linear fallbacks
-      // retain native scrolling, including browser zoom and horizontal gestures.
-      if (!(event.target instanceof Node) || !story.contains(event.target)
-        || rect.top > 1 || rect.bottom < window.innerHeight - 1) return
+      const target = event.target instanceof Node ? event.target : null
+      const inIntroduction = !!target && !!introduction?.contains(target)
+      const inStory = !!target && story.contains(target)
+      const inConclusion = !!target && !!conclusion?.contains(target)
+      if (!inIntroduction && !inStory && !inConclusion) return
+      if (transitionTarget !== null) {
+        if (Math.abs(window.scrollY - transitionTarget) <= 2 || now >= transitionDeadline) {
+          transitionTarget = null
+        } else {
+          event.preventDefault()
+          return
+        }
+      }
+      // Once the camera has arrived, absorb the rest of that same gesture,
+      // but allow a fresh gesture to navigate back immediately.
+      if (settlingTransition) {
+        if (continuingGesture) {
+          event.preventDefault()
+          return
+        }
+        settlingTransition = false
+      }
+      if (inIntroduction && event.deltaY > 0 && rect.top > 1) {
+        event.preventDefault()
+        transitionTo(window.scrollY + rect.top + 2)
+        return
+      }
+      if (inConclusion && event.deltaY < 0) {
+        event.preventDefault()
+        transitionTo(window.scrollY + rect.bottom - window.innerHeight)
+        return
+      }
+      // Hero upwards and CTA downwards remain native, including footer access.
+      if (!inStory) return
+      // Also settle partially visible panels reached via scrollbar or keyboard.
+      if (rect.top > 1 || rect.bottom < window.innerHeight - 1) {
+        let destination: number | null
+        if (rect.top > 1) {
+          destination = event.deltaY > 0 ? window.scrollY + rect.top + 2
+            : introduction ? window.scrollY + introduction.getBoundingClientRect().top : null
+        } else {
+          destination = event.deltaY < 0 ? window.scrollY + rect.bottom - window.innerHeight
+            : conclusion ? window.scrollY + conclusion.getBoundingClientRect().top : null
+        }
+        if (destination !== null) {
+          event.preventDefault()
+          transitionTo(destination)
+        }
+        return
+      }
       if (now < lockedUntil || continuingGesture) {
         event.preventDefault()
         return
@@ -96,13 +152,15 @@ export function UwrExplainer() {
       })
       const nextIndex = index + Math.sign(event.deltaY)
       if (nextIndex < 0 || nextIndex >= uwrStageSteps.length) {
-        // Skip the invisible remainder of the boundary interval, then let
-        // this wheel impulse naturally move out to the hero or CTA.
-        window.scrollTo({
-          top: window.scrollY + (nextIndex < 0 ? rect.top : rect.bottom - window.innerHeight),
-          behavior: 'instant',
-        })
-        lastWheelAt = -Infinity
+        const destination = nextIndex < 0 ? introduction : conclusion
+        if (!destination) return
+        event.preventDefault()
+        if (nextIndex >= uwrStageSteps.length) {
+          // Align the invisible last interval before leaving. The sticky image
+          // stays identical, so the visible fullscreen transition starts now.
+          window.scrollTo({ top: window.scrollY + rect.bottom - window.innerHeight, behavior: 'instant' })
+        }
+        transitionTo(window.scrollY + destination.getBoundingClientRect().top)
         return
       }
       const next = triggerRefs.current[nextIndex]
