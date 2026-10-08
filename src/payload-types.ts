@@ -72,6 +72,7 @@ export interface Config {
     posts: Post;
     events: Event;
     'training-times': TrainingTime;
+    'training-breaks': TrainingBreak;
     'team-members': TeamMember;
     pages: Page;
     'payload-kv': PayloadKv;
@@ -86,6 +87,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     'training-times': TrainingTimesSelect<false> | TrainingTimesSelect<true>;
+    'training-breaks': TrainingBreaksSelect<false> | TrainingBreaksSelect<true>;
     'team-members': TeamMembersSelect<false> | TeamMembersSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -279,7 +281,7 @@ export interface Event {
   createdAt: string;
 }
 /**
- * Wöchentliche Trainingszeiten pflegen. Die Startseite zeigt automatisch den nächsten aktiven Termin an.
+ * Wöchentliche Serien und Einzeltermine pflegen, z. B. Hallenbad oder Sommertraining im Freibad. Ausfälle und Ferien werden unter Trainingspausen eingetragen.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "training-times".
@@ -287,13 +289,59 @@ export interface Event {
 export interface TrainingTime {
   id: number;
   label: string;
-  weekday: 'montag' | 'dienstag' | 'mittwoch' | 'donnerstag' | 'freitag' | 'samstag' | 'sonntag';
+  /**
+   * Mit Datum findet dieses Training nur an diesem Tag statt. Leer lassen für eine wöchentliche Serie.
+   */
+  oneOffDate?: string | null;
+  weekday?: ('montag' | 'dienstag' | 'mittwoch' | 'donnerstag' | 'freitag' | 'samstag' | 'sonntag') | null;
   startTime: string;
   endTime: string;
   location: string;
   address?: string | null;
   mapUrl?: string | null;
+  /**
+   * Ab diesem Datum einschließlich gilt die wöchentliche Serie. Leer: kein Startdatum. Für eine Sommerserie den ersten möglichen Trainingstag wählen.
+   */
+  validFrom?: string | null;
+  /**
+   * Bis zu diesem Datum einschließlich gilt die Serie. Leer: kein Enddatum. Danach wird sie automatisch nicht mehr vorgeschlagen.
+   */
+  validUntil?: string | null;
   sortOrder?: number | null;
+  /**
+   * Deaktivieren stoppt die gesamte Trainingsserie bzw. den Einzeltermin.
+   */
+  active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Einzelne Trainings absagen oder ganze Zeiträume ausschließen. Die Website überspringt diese Termine automatisch. Ein Eintrag kann mehrere Trainingszeiten betreffen.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-breaks".
+ */
+export interface TrainingBreak {
+  id: number;
+  /**
+   * Zum Beispiel Schulferien, Semesterferien oder Bad geschlossen. Der Grund wird auf der Website angezeigt.
+   */
+  reason: string;
+  /**
+   * Dieser Tag gehört zur Pause. Für einen einzelnen ausgefallenen Termin nur dieses Datum eintragen.
+   */
+  startDate: string;
+  /**
+   * Dieser Tag gehört ebenfalls zur Pause. Leer lassen: Es fällt nur der unter „Ausfall ab / am“ gewählte Tag aus.
+   */
+  endDate?: string | null;
+  /**
+   * Alle Serien oder Einzeltermine auswählen, die ausfallen. Andere Trainings, z. B. im Freibad Kreuzlingen, finden weiter statt.
+   */
+  trainings: (number | TrainingTime)[];
+  /**
+   * Deaktivieren hebt diese Absage auf, ohne den Eintrag zu löschen.
+   */
   active?: boolean | null;
   updatedAt: string;
   createdAt: string;
@@ -387,6 +435,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'training-times';
         value: number | TrainingTime;
+      } | null)
+    | ({
+        relationTo: 'training-breaks';
+        value: number | TrainingBreak;
       } | null)
     | ({
         relationTo: 'team-members';
@@ -557,13 +609,29 @@ export interface EventsSelect<T extends boolean = true> {
  */
 export interface TrainingTimesSelect<T extends boolean = true> {
   label?: T;
+  oneOffDate?: T;
   weekday?: T;
   startTime?: T;
   endTime?: T;
   location?: T;
   address?: T;
   mapUrl?: T;
+  validFrom?: T;
+  validUntil?: T;
   sortOrder?: T;
+  active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "training-breaks_select".
+ */
+export interface TrainingBreaksSelect<T extends boolean = true> {
+  reason?: T;
+  startDate?: T;
+  endDate?: T;
+  trainings?: T;
   active?: T;
   updatedAt?: T;
   createdAt?: T;

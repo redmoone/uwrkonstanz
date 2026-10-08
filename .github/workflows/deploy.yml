@@ -31,6 +31,8 @@ jobs:
           node-version: '22'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Check training schedule
+        run: node --test tests/training-schedule.test.mjs
       - run: pnpm build
       - name: Package Linux standalone application
         run: |
@@ -72,6 +74,7 @@ jobs:
             -H 'Referer: https://untrusted.example/admin' \
             http://127.0.0.1:3300/api/users/me | \
             python3 -c 'import json,sys; assert not json.load(sys.stdin).get("user")'
+          node tests/training-cms-smoke.mjs http://127.0.0.1:3300
           kill "$server_pid"
           wait "$server_pid" || true
           trap - EXIT

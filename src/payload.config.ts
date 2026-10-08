@@ -10,6 +10,7 @@ import { Media } from '@/collections/Media'
 import { Posts } from '@/collections/Posts'
 import { Events } from '@/collections/Events'
 import { TrainingTimes } from '@/collections/TrainingTimes'
+import { TrainingBreaks } from '@/collections/TrainingBreaks'
 import { TeamMembers } from '@/collections/TeamMembers'
 import { Pages } from '@/collections/Pages'
 import { SiteSettings } from '@/globals/SiteSettings'
@@ -24,7 +25,7 @@ export default buildConfig({
     user: Users.slug,
   },
   editor: lexicalEditor(),
-  collections: [Users, Media, Posts, Events, TrainingTimes, TeamMembers, Pages],
+  collections: [Users, Media, Posts, Events, TrainingTimes, TrainingBreaks, TeamMembers, Pages],
   globals: [SiteSettings],
   secret: process.env.PAYLOAD_SECRET || '',
   db: sqliteAdapter({

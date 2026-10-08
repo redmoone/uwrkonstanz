@@ -2,7 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import type { Media } from '@/payload-types'
 import { getPublishedPosts } from '@/lib/news-data'
-import { getNextTraining } from '@/lib/training-schedule'
+import { getNextTraining, type TrainingBreak } from '@/lib/training-schedule'
 
 export type HomePost = {
   id: number | string
@@ -21,6 +21,9 @@ export type TrainingTime = {
   endTime: string
   location: string
   address?: string | null
+  validFrom?: string | null
+  validUntil?: string | null
+  oneOffDate?: string | null
 }
 
 const fallbackPosts: HomePost[] = [
@@ -32,7 +35,7 @@ const fallbackPosts: HomePost[] = [
 export async function getHomeData() {
   try {
     const payload = await getPayload({ config: configPromise })
-    const [postsResult, trainingResult] = await Promise.all([
+    const [postsResult, trainingResult, breaksResult] = await Promise.all([
       getPublishedPosts(3),
       payload.find({
         collection: 'training-times',
@@ -40,13 +43,23 @@ export async function getHomeData() {
         overrideAccess: false,
         where: { active: { equals: true } },
       }),
+      payload.find({
+        collection: 'training-breaks',
+        pagination: false,
+        depth: 0,
+        overrideAccess: false,
+        where: { active: { equals: true } },
+        sort: 'startDate',
+      }),
     ])
 
     return {
       posts: (postsResult.docs.length ? postsResult.docs : fallbackPosts) as unknown as HomePost[],
-      nextTraining: getNextTraining(trainingResult.docs as TrainingTime[]),
+      trainings: trainingResult.docs as TrainingTime[],
+      trainingBreaks: breaksResult.docs as TrainingBreak[],
+      nextTraining: getNextTraining(trainingResult.docs as TrainingTime[], new Date(), breaksResult.docs as TrainingBreak[]),
     }
   } catch {
-    return { posts: fallbackPosts, nextTraining: undefined }
+    return { posts: fallbackPosts, trainings: [] as TrainingTime[], trainingBreaks: [] as TrainingBreak[], nextTraining: undefined }
   }
 }
