@@ -69,6 +69,55 @@ export function UwrExplainer() {
   }, [enhanced])
 
   useEffect(() => {
+    const story = storyRef.current
+    if (!enhanced || !story) return
+    let lockedUntil = 0
+    let lastWheelAt = -Infinity
+    const wheel = (event: WheelEvent) => {
+      if (event.defaultPrevented || !event.cancelable || event.ctrlKey || event.metaKey || event.shiftKey
+        || event.deltaY === 0 || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
+      // Observe the gesture outside the stage as well, without cancelling it,
+      // so momentum from the hero does not immediately skip the first object.
+      const now = performance.now()
+      const continuingGesture = now - lastWheelAt < 180
+      lastWheelAt = now
+      const rect = story.getBoundingClientRect()
+      // Only handle the fully pinned stage. Hero, CTA and linear fallbacks
+      // retain native scrolling, including browser zoom and horizontal gestures.
+      if (!(event.target instanceof Node) || !story.contains(event.target)
+        || rect.top > 1 || rect.bottom < window.innerHeight - 1) return
+      if (now < lockedUntil || continuingGesture) {
+        event.preventDefault()
+        return
+      }
+      let index = 0
+      triggerRefs.current.forEach((element, candidate) => {
+        if (element && element.getBoundingClientRect().top <= 2) index = candidate
+      })
+      const nextIndex = index + Math.sign(event.deltaY)
+      if (nextIndex < 0 || nextIndex >= uwrStageSteps.length) {
+        // Skip the invisible remainder of the boundary interval, then let
+        // this wheel impulse naturally move out to the hero or CTA.
+        window.scrollTo({
+          top: window.scrollY + (nextIndex < 0 ? rect.top : rect.bottom - window.innerHeight),
+          behavior: 'instant',
+        })
+        lastWheelAt = -Infinity
+        return
+      }
+      const next = triggerRefs.current[nextIndex]
+      if (!next) return
+      event.preventDefault()
+      // Keep one gesture to one object, including trackpad momentum. The SVG
+      // camera completes its 750ms eased flight instead of following wheel ticks.
+      lockedUntil = now + 800
+      window.scrollTo({ top: window.scrollY + next.getBoundingClientRect().top + 2, behavior: 'instant' })
+    }
+    window.addEventListener('wheel', wheel, { passive: false })
+    return () => window.removeEventListener('wheel', wheel)
+  }, [enhanced])
+
+  useEffect(() => {
     const reset = () => setHoveredId(null)
     const visibility = () => { if (document.hidden) reset() }
     window.addEventListener('blur', reset)

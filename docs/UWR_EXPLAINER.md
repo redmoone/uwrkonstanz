@@ -24,10 +24,18 @@ Die Fotokanten besitzen eine eigene SVG-Alpha-Maske: seitlich 6 %, oben/unten
 nicht dem Viewport. Das Bildinnere bleibt vollständig opak; Marker, Konturen
 und Trace bleiben unmaskiert. Der separate Textlesbarkeitsverlauf bleibt erhalten.
 
-Sechs unsichtbare 90svh-Trigger steuern die Geschichte:
+Sechs unsichtbare 45svh-Trigger steuern die Geschichte:
 Ball → Korb → Ausrüstung → Deckel → Untertor/Dackel → Stürmer.
 Keine Bildwechsel, Crossfades, Kapitelkarten, Kapitel-Navigation oder
 zusätzliche 3D-Erklärung. Kein Scroll-Snap.
+
+In der vollständig angehefteten Desktop-Bühne wechselt ein vertikaler
+Mausrad-/Trackpad-Impuls direkt zum nächsten bzw. vorherigen Objekt und startet
+die weiche 750-ms-Kamerafahrt. Ein 800-ms-Übergangsfenster und 180 ms Gestenruhe
+fassen Trackpad-Nachlauf zu einem Schritt zusammen. Am ersten/letzten Objekt
+setzt der Driver an seine Grenze; derselbe Impuls scrollt nativ zum Hero/CTA.
+Außerhalb der Bühne, bei Mobile und Reduced Motion wird das Rad nicht abgefangen.
+Browserzoom, horizontale Gesten, Scrollbar und Tastatur bleiben unverändert.
 
 ## Daten und Komponenten
 
@@ -56,7 +64,8 @@ MouseLeave, Blur, Escape, Touch-Ende und Moduswechsel setzen den Override zurüc
 Es erscheint regulär maximal eine Kontur; nur der Ausrüstungs-Scrollzustand
 zeigt seine drei ausdrücklich zusammengehörigen ABC-Objekte gleichzeitig.
 
-Ring 20 px, Mittelpunkt 4 px, kreisförmige Trefferfläche mit 44-px-Durchmesser.
+Ring 20 px mit 1.5-px-Linie, Mittelpunkt 5 px; inaktiv 65 % Deckkraft.
+Kreisförmige Trefferfläche mit 44-px-Durchmesser.
 Ihre Größe wird mit Basis-SVG-Maßstab × aktuellem Kamerazoom kompensiert.
 Transparente foreignObject-Ecken blockieren keine benachbarten Marker.
 
@@ -66,7 +75,7 @@ in einen geschlossenen Unterpfad überführt. Die Aussparungen bei Deckel und
 Untertor bleiben durch evenodd-Füllung erhalten. Der neue Stürmer-Pfad gehört
 zum kopfüber schwimmenden Spieler in der Mitte; Marker und Kameraziel folgen
 dieser Zuordnung. Die drei Ausrüstungs-Pfade bleiben getrennt.
-Drei Ebenen: weicher äußerer Glow, 2.1-px-Kontur mit non-scaling-stroke,
+Drei Ebenen: weicher äußerer Glow, 2.8-px-Kontur mit non-scaling-stroke,
 7 % transparente Innenfläche. Keine Ersatzellipsen oder permanente Pulse.
 
 ## Tracing

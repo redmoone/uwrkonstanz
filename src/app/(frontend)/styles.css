@@ -162,7 +162,7 @@ img { object-fit: cover; }
 .uwr-page .scrollDriver, .uwr-page .explainerStage__copy { display: none; }
 .uwr-page .explainerStory[data-enhanced="true"] .explainerStage { position: sticky; top: 0; height: 100svh; }
 .uwr-page .explainerStory[data-enhanced="true"] .scrollDriver { display: block; position: relative; margin-top: -100svh; padding-bottom: 100svh; pointer-events: none; }
-.uwr-page .storyTrigger { height: 90svh; }
+.uwr-page .storyTrigger { height: 45svh; }
 .uwr-page .explainerStory[data-enhanced="true"] .storyLinear { display: none; }
 .uwr-page .interactive-image { position: relative; margin: 0; min-width: 0; }
 .uwr-page .interactive-image__svg { display: block; width: 100%; height: auto; }
@@ -183,11 +183,11 @@ img { object-fit: cover; }
 .uwr-page .outline-overlay { pointer-events: none; }
 .uwr-page .outline-overlay__stroke, .uwr-page .outline-overlay__glow { stroke: var(--cyan); stroke-linecap: round; stroke-linejoin: round; fill: none; }
 .uwr-page .outline-overlay__fill { fill: var(--cyan); fill-opacity: .07; }
-.uwr-page .outline-overlay__stroke { stroke-width: 2.1; stroke-opacity: .9; }
+.uwr-page .outline-overlay__stroke { stroke-width: 2.8; stroke-opacity: .9; }
 .uwr-page .outline-overlay__glow { stroke-width: 6; opacity: .38; }
 .uwr-page .hotspot-marker { width: 44px; height: 44px; display: grid; place-items: center; border: 0; padding: 0; background: transparent; cursor: pointer; clip-path: circle(50%); pointer-events: auto; }
-.uwr-page .hotspot-marker__ring { width: 20px; height: 20px; border: 1px solid var(--cyan); border-radius: 50%; display: grid; place-items: center; background: transparent; opacity: .3; transition: transform .25s ease, box-shadow .25s ease, opacity .25s ease; }
-.uwr-page .hotspot-marker__ring > span { width: 4px; height: 4px; border-radius: 50%; background: var(--cyan); }
+.uwr-page .hotspot-marker__ring { width: 20px; height: 20px; border: 1.5px solid var(--cyan); border-radius: 50%; display: grid; place-items: center; background: transparent; opacity: .65; transition: transform .25s ease, box-shadow .25s ease, opacity .25s ease; }
+.uwr-page .hotspot-marker__ring > span { width: 5px; height: 5px; border-radius: 50%; background: var(--cyan); }
 .uwr-page .hotspot-marker[data-active="true"] .hotspot-marker__ring { transform: scale(1.06); opacity: 1; box-shadow: 0 0 10px rgba(115,229,239,.2); }
 .uwr-page .hotspot-marker:focus-visible { outline: 2px solid var(--cyan); outline-offset: -3px; border-radius: 50%; }
 .uwr-page .hotspot-debug { fill: var(--cyan); font: 14px monospace; paint-order: stroke; stroke: var(--navy); stroke-width: 3px; pointer-events: none; }
