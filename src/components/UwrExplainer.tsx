@@ -8,6 +8,7 @@ import { StoryLinear } from './uwr/StoryLinear'
 import { StoryTrigger } from './uwr/StoryTrigger'
 import { StoryTranscript } from './uwr/StoryTranscript'
 import { uwrStageSteps } from '@/lib/uwr-stage'
+import { canScrollVertically } from '@/lib/uwr-scroll'
 
 export function UwrExplainer() {
   const [enhanced, setEnhanced] = useState(false)
@@ -49,7 +50,7 @@ export function UwrExplainer() {
       const stage = story.querySelector<HTMLElement>('.explainerStage')
       let selectedIndex = 0
       let timer: ReturnType<typeof setTimeout> | undefined
-      let gesture: { x: number; y: number; panel: Element; consumed: boolean } | null = null
+      let gesture: { x: number; y: number; panel: Element; scroller: HTMLElement | null; consumed: boolean } | null = null
       let transitionTarget: number | null = null
       let transitionDeadline = 0
       const select = (index: number) => {
@@ -127,8 +128,10 @@ export function UwrExplainer() {
       const touchStart = (event: TouchEvent) => {
         gesture = null
         if (event.touches.length !== 1 || !(event.target instanceof Node)) return
-        // Let taps and scrolling text use the browser’s normal touch behavior.
-        if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea, .explainerStage__copy')) return
+        // Let controls keep the browser's normal touch behavior.
+        if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea')) return
+        const scroller = event.target instanceof Element
+          ? event.target.closest<HTMLElement>('.explainerStage__copy') : null
         const panel = [introduction, story, conclusion].find(panel => panel?.contains(event.target as Node))
         if (!panel) return
         clearTimeout(timer)
@@ -137,7 +140,7 @@ export function UwrExplainer() {
           window.scrollTo({ top: window.scrollY, behavior: 'instant' })
           transitionTarget = null
         }
-        gesture = { x: event.touches[0].clientX, y: event.touches[0].clientY, panel, consumed: false }
+        gesture = { x: event.touches[0].clientX, y: event.touches[0].clientY, panel, scroller, consumed: false }
       }
       const touchMove = (event: TouchEvent) => {
         if (!gesture) return
@@ -146,6 +149,13 @@ export function UwrExplainer() {
         const deltaY = gesture.y - event.touches[0].clientY
         const deltaX = gesture.x - event.touches[0].clientX
         if (Math.abs(deltaX) > Math.abs(deltaY)) { gesture = null; return }
+        if (deltaY === 0) return
+        // Read overflowing text first. Only a fresh swipe at its edge changes
+        // chapters, so reaching the end cannot skip a chapter mid-gesture.
+        if (gesture.scroller && canScrollVertically(gesture.scroller, deltaY)) {
+          gesture = null
+          return
+        }
         // The outer directions keep native scrolling, including footer access.
         if ((gesture.panel === introduction && deltaY < 0)
           || (gesture.panel === conclusion && deltaY > 0)) {
