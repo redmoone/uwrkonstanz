@@ -128,7 +128,7 @@ export function UwrExplainer() {
         gesture = null
         if (event.touches.length !== 1 || !(event.target instanceof Node)) return
         // Let taps and scrolling text use the browser’s normal touch behavior.
-        if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea, .explainerStage__copy, [data-hotspot-controls]')) return
+        if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea, .explainerStage__copy')) return
         const panel = [introduction, story, conclusion].find(panel => panel?.contains(event.target as Node))
         if (!panel) return
         clearTimeout(timer)

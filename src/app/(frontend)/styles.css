@@ -241,7 +241,6 @@ img { object-fit: cover; }
 .uwr-page .explainer-cta__description { max-width: 520px; margin: 24px 0; font-size: 18px; line-height: 1.6; }
 .uwr-page a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
 /* Portaled into body so the story scroll driver cannot intercept dialog gestures. */
-.uwr-page .hotspotChoices, .uwr-page .hotspotHint { display: none; }
 .hotspot-dialog { width: min(460px, calc(100% - 32px)); max-width: none; max-height: calc(100dvh - 32px); margin: auto; padding: 0; overflow: hidden; border: 1px solid rgba(115,229,239,.4); border-radius: 12px; background: var(--navy); color: var(--white); box-shadow: 0 20px 80px rgba(0,15,28,.45); overscroll-behavior: contain; animation: uwr-dialog-reveal .18s ease-out; }
 .hotspot-dialog::backdrop { background: rgba(0,15,28,.72); }
 .hotspot-dialog__panel { display: flex; flex-direction: column; max-height: calc(100dvh - 34px); padding: 28px; }
@@ -271,16 +270,10 @@ img { object-fit: cover; }
   .uwr-page .explainerStory[data-enhanced="true"] .interactive-image { flex: 0 0 auto; height: auto; width: 100%; }
   .uwr-page .explainerStory[data-enhanced="true"] .interactive-image__svg { width: 150%; max-width: none; margin-left: -25%; height: auto; max-height: 44svh; aspect-ratio: 3 / 2; }
   .uwr-page .explainerStory[data-enhanced="true"] .explainerStage__shade { background: none; }
-  .uwr-page .explainerStory[data-enhanced="true"] .explainerStage__copy { position: static; flex: 1 1 auto; min-height: 0; width: auto; padding: 16px 20px; overflow-y: auto; overscroll-behavior: contain; scrollbar-color: var(--cyan) var(--navy); }
+  .uwr-page .explainerStory[data-enhanced="true"] .explainerStage__copy { position: static; flex: 1 1 auto; min-height: 0; width: auto; padding: 16px 20px; pointer-events: auto; overflow-y: auto; overscroll-behavior: contain; scrollbar-color: var(--cyan) var(--navy); }
   .uwr-page .explainerStage__copy .storyCopy h2 { font-size: clamp(28px, 8vw, 42px); }
   .uwr-page .explainerStage__copy .storyCopy > p:not(.kicker) { margin-top: 16px; font-size: 16px; line-height: 1.5; }
   .uwr-page .explainerStory[data-enhanced="true"] .stageExploration { position: static; width: auto; margin: 0; padding: 0 20px 16px; }
-  .uwr-page .hotspotChoices { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 6px 20px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-  .uwr-page .hotspotChoices::-webkit-scrollbar { display: none; }
-  .uwr-page .hotspotChoices button { flex: 0 0 auto; min-height: 44px; min-width: 44px; padding: 0 14px; border: 1px solid rgba(115,229,239,.4); border-radius: 24px; background: var(--navy-2); color: var(--cyan); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
-  .uwr-page .hotspotChoices button[aria-expanded="true"] { background: var(--cyan); color: var(--navy); }
-  .uwr-page .hotspotChoices button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
-  .uwr-page .hotspotHint { display: block; margin: 0 0 10px; color: var(--cyan); font-size: 12px; line-height: 1.4; }
   .uwr-page .storyTrigger { height: 120svh; }
   .uwr-page .explainer-hero__copy { padding: 24px 0 44px; }
   .uwr-page .explainer-hero h1 { font-size: clamp(26px, 8.4vw, 64px); }
