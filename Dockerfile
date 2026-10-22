@@ -1,10 +1,10 @@
-FROM node:22-bookworm-slim AS base
+FROM node:22.23.4-bookworm-slim AS base
 WORKDIR /app
 RUN corepack enable
 
 FROM base AS deps
-COPY package.json ./
-RUN pnpm install --no-frozen-lockfile
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules

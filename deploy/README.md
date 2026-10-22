@@ -11,7 +11,7 @@ Optional Actions variables: `UWR_SERVER_URL`, `UWR_DEPLOY_HOST`, `UWR_DEPLOY_USE
 
 Server paths:
 
-- `/opt/uwr-node`: Node.js 22 runtime.
+- `/opt/uwr-node`: Node.js 22.23.4 runtime; keep it in sync with `.node-version` before deploying a release that raises the minimum Node.js version.
 - `/srv/uwrkonstanz/current`: active standalone release.
 - `/srv/uwrkonstanz/shared/app.env`: production secret and environment, outside Git.
 - `/srv/uwrkonstanz/shared/data/uwr.db`: production SQLite database.
@@ -27,4 +27,4 @@ Payload runs committed production migrations on initialization. After changing c
 
 The first deployment starts with a new production database and listens on loopback until its owner registers the initial administrator. Use `ssh -L 3301:127.0.0.1:3000 root@78.141.212.242`, open `http://localhost:3301/admin`, and create the administrator yourself. Deploy again to publish on port 3000. Local development data and logins are not automatically published.
 
-This IP/port endpoint uses HTTP. Use a domain and HTTPS before using the CMS for normal administration. The existing Ubuntu 20.10 installation also needs a separately planned upgrade to a supported release.
+This IP/port endpoint uses HTTP. Use a domain and HTTPS before using the CMS for normal administration. The server runs Ubuntu 24.04 LTS.

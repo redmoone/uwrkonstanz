@@ -4,21 +4,23 @@ Starterpaket für die neue UWR-Konstanz-Website. Ziel: moderne Sport-/Editorial-
 
 ## Stack
 
-- Next.js 15.4.11
-- React 19.2.1
-- Payload CMS 3.90.2
+- Next.js 16.4.2
+- React 19.2.9
+- Payload CMS 3.92.0
 - SQLite via `@payloadcms/db-sqlite`
 - Lexical Rich Text
 - Sharp für Bildvarianten
 - Tailwind CSS 4 ist installiert; das aktuelle Mockup nutzt bewusst zusätzlich normales CSS für maximale Kontrolle.
 - Docker / Docker Compose für Self-Hosting
 
-> Next 15.4.11 ist hier bewusst gepinnt. Payload unterstützt diese Version und es gab 2026 noch offene Next-16-Probleme rund um unauthentifizierte Admin-Routen. Später kann man nachziehen.
+Die Versionen sind gemeinsam auf einen unterstützten Sicherheitsstand gepinnt. Der Produktionsbuild nutzt Webpack für die Payload-Integration; CI prüft CMS-Anmeldung, Inhaltsverwaltung und Kontaktformular vor dem Deployment.
+
+Die gezielten pnpm-Overrides aktualisieren DOMPurify im CMS-Editor sowie Sass und esbuild in den Build-/Migrationswerkzeugen. Beim nächsten Payload-Update erneut prüfen, ob die korrigierten Versionen bereits direkt mitgeliefert werden.
 
 ## In WebStorm starten
 
 1. ZIP entpacken und den Ordner in WebStorm öffnen.
-2. Node.js 22 (oder mindestens 20.9) als Project Interpreter auswählen.
+2. Node.js 22.23.4 aus `.node-version` als Project Interpreter auswählen; alternativ mindestens 24.22.1.
 3. Im Terminal:
 
 ```bash
